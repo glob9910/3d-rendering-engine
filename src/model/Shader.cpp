@@ -43,7 +43,7 @@ public:
 
         }
         catch(std::ifstream::failure e) {
-            std::cout << "ERROR::SHADER::FILE_NOT_READ_SUCCESSFULLY";
+            std::cout << "ERROR::SHADER::FILE_NOT_READ_SUCCESSFULLY" << std::endl;
         }
         const char* vShaderCode = vertexCode.c_str();
         const char* fShaderCode = fragmentCode.c_str();
@@ -62,7 +62,7 @@ public:
         glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
         if(!success) {
             glGetShaderInfoLog(vertex, 512, NULL, infoLog);
-            std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAIL";
+            std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAIL" << std::endl;
         }
 
         // fragment shader
@@ -73,7 +73,7 @@ public:
         glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
         if(!success) {
             glGetShaderInfoLog(fragment, 512, NULL, infoLog);
-            std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAIL";
+            std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAIL" << std::endl;
         }
 
         // shader Program
@@ -81,10 +81,11 @@ public:
         glAttachShader(ID, vertex);
         glAttachShader(ID, fragment);
         glLinkProgram(ID);
+        glGetProgramiv(ID, GL_LINK_STATUS, &success);
         // print linking errors if any
         if(!success) {
             glGetProgramInfoLog(ID, 512, NULL, infoLog);
-            std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILURE";
+            std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILURE" << std::endl;
         }
 
         // delete the shaders as they're linked into our program now and are no longer necesarry
