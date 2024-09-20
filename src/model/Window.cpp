@@ -6,6 +6,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <cstring>
 
 #include "../Exception.cpp"
 #include "Shader.cpp"
@@ -15,7 +16,8 @@ class Window {
 
 public:
     unsigned int VAO;
-    unsigned int texture;
+    unsigned int texture1;
+    unsigned int texture2;
     Shader* ourShader;
 
     float vertices[32] = {
@@ -78,7 +80,10 @@ public:
         glBindVertexArray(0);
         
         // textures
-        setTexture();
+        stbi_set_flip_vertically_on_load(true);
+        setTexture(texture1, "src/model/assets/container.jpg", false);
+        setTexture(texture2, "src/model/assets/awesomeface.png", true);
+        
 
         while(!glfwWindowShouldClose(window)) {
             processInput(window);
@@ -104,18 +109,23 @@ public:
         glClear(GL_COLOR_BUFFER_BIT);
 
         // bind texture
-        glBindTexture(GL_TEXTURE_2D, texture);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture1);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2);
 
         // be sure to activate the shader
         ourShader->use();
-    
+        ourShader->setInt("texture1", 0);
+        ourShader->setInt("texture2", 1);
+
         // now render the triangle
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     }
 
     // texture
-    void setTexture() {
+    void setTexture(unsigned int &texture, std::string sourceFile, bool isPNG) {
         glGenTextures(1, &texture);
         glBindTexture(GL_TEXTURE_2D, texture);  
         
@@ -129,16 +139,20 @@ public:
         // load and generate the texture
         int width, height, nrChannels;
         // nie dziala -> unsigned char *data = stbi_load("assets/container.jpg", &width, &height, &nrChannels, 0); 
-        unsigned char *data = stbi_load("src/model/assets/container.jpg", &width, &height, &nrChannels, 0);
-
+        unsigned char *data = stbi_load(sourceFile.c_str(), &width, &height, &nrChannels, 0);
         if(data) {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            if(isPNG) {
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+            }
+            else {
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            }
             glGenerateMipmap(GL_TEXTURE_2D);
         }
         else {
             std::cout << "Failed to load texture" << std::endl;
         }
-
+        
         // free image memory
         stbi_image_free(data);
     }
