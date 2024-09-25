@@ -26,6 +26,11 @@ public:
     glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f, 3.0f);
     glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f, 0.0f);
+    float fov = 40.0f;
+    float yaw = -90.0f;
+    float pitch = 0;
+    float lastX = 400, lastY = 300; // middle
+    bool firstMouse = true;
 
     float vertices[256] = {
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -102,8 +107,12 @@ public:
             throw new Exception();
         }    
 
-
+        glfwFocusWindow(window);
         glEnable(GL_DEPTH_TEST);
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSetWindowUserPointer(window, this);
+        glfwSetCursorPosCallback(window, static_mouse_callback);
+
         // model
         // build and compile our shaderProgram
         ourShader = new Shader("src/model/shaders/shader.vs", "src/model/shaders/shader.fs");
@@ -142,13 +151,7 @@ public:
         ourShader->use();
         ourShader->setInt("texture1", 0);
         ourShader->setInt("texture2", 1);
-        
-        // projection before loop, because it's rather static
-        glm::mat4 projection = glm::mat4(1.0f);
-        projection = glm::perspective(glm::radians(45.0f), (float)800 / (float)600, 0.1f, 100.0f);
-        unsigned int projectionLoc = glGetUniformLocation(ourShader->ID, "projection");
-        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
+    
 
         while(!glfwWindowShouldClose(window)) {
             processInput(window);
@@ -164,6 +167,7 @@ public:
 
     void processInput(GLFWwindow *window) {
         const float cameraSpeed = 0.05f;
+        const float fovSpeed = 1.0f;
 
         if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
@@ -175,6 +179,17 @@ public:
             cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
         if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
             cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        if(glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
+            fov -= fovSpeed;
+            if (fov < 1.0f)
+                fov = 1.0f;
+            }
+        if(glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
+            fov += fovSpeed;
+            if (fov > 45.0f)
+                fov = 45.0f;
+        }
+    
     }
 
     void render() {
@@ -191,12 +206,16 @@ public:
 
         // be sure to activate the shader
         ourShader->use();
-    
-        // create transformations
 
-        // camera (here?)
+        // projection (because of fov its inside loop)
+        glm::mat4 projection = glm::mat4(1.0f);
+        projection = glm::perspective(glm::radians(fov), (float)800 / (float)600, 0.1f, 100.0f);
+        unsigned int projectionLoc = glGetUniformLocation(ourShader->ID, "projection");
+        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+
+        // camera
         glm::mat4 view;
-        
         view = glm::lookAt(cameraPos, cameraPos+cameraFront, cameraUp);
         unsigned int viewLoc = glGetUniformLocation(ourShader->ID, "view");
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -249,5 +268,45 @@ public:
         
         // free image memory
         stbi_image_free(data);
+    }
+
+
+    static void static_mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+        // Pobierz wskaźnik do instancji klasy Window
+        Window* instance = static_cast<Window*>(glfwGetWindowUserPointer(window));
+        
+        // Wywołaj instancyjną metodę, aby przetworzyć ruch myszy
+        instance->mouse_callback(window, xpos, ypos);
+    }
+
+    void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+        if (firstMouse) { // initially set to true
+            lastX = xpos;
+            lastY = ypos;
+            firstMouse = false;
+        }
+            
+        float xoffset = xpos - lastX;
+        float yoffset = lastY - ypos; // reversed since y-coordinates range from bottom to top
+        lastX = xpos;
+        lastY = ypos;
+
+        float sensitivity = 0.1f;
+        xoffset *= sensitivity;
+        yoffset *= sensitivity;
+
+        yaw   += xoffset;
+        pitch += yoffset;
+
+        if(pitch > 89.0f)
+            pitch =  89.0f;
+        if(pitch < -89.0f)
+            pitch = -89.0f;
+
+        glm::vec3 direction;
+        direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+        direction.y = sin(glm::radians(pitch));
+        direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+        cameraFront = glm::normalize(direction);
     }
 };
