@@ -13,23 +13,23 @@
 
 #include "../Exception.cpp"
 #include "Shader.cpp"
+#include "Camera.cpp"
 
 
 class Window {
 
 public:
+    const int SCR_WIDTH = 800;
+    const int SCR_HEIGHT = 600;
+
     unsigned int VAO;
     unsigned int texture1;
     unsigned int texture2;
     Shader* ourShader;
-    
-    glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f, 3.0f);
-    glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-    glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f, 0.0f);
-    float fov = 40.0f;
-    float yaw = -90.0f;
-    float pitch = 0;
-    float lastX = 400, lastY = 300; // middle
+
+    Camera* camera;
+    float lastX = SCR_WIDTH / 2.0f;
+    float lastY = SCR_HEIGHT / 2.0f;
     bool firstMouse = true;
 
     float vertices[256] = {
@@ -112,6 +112,7 @@ public:
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         glfwSetWindowUserPointer(window, this);
         glfwSetCursorPosCallback(window, static_mouse_callback);
+        glfwSetCursorPos(window, lastX, lastY);
 
         // model
         // build and compile our shaderProgram
@@ -152,6 +153,8 @@ public:
         ourShader->setInt("texture1", 0);
         ourShader->setInt("texture2", 1);
     
+        // camera
+        camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
         while(!glfwWindowShouldClose(window)) {
             processInput(window);
@@ -171,25 +174,19 @@ public:
 
         if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
+        
         if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            cameraPos += cameraSpeed * cameraFront;
+            camera->ProcessKeyboard(FORWARD);
         if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            cameraPos -= cameraSpeed * cameraFront;
+            camera->ProcessKeyboard(BACKWARD);
         if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+            camera->ProcessKeyboard(LEFT);
         if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-        if(glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
-            fov -= fovSpeed;
-            if (fov < 1.0f)
-                fov = 1.0f;
-            }
-        if(glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
-            fov += fovSpeed;
-            if (fov > 45.0f)
-                fov = 45.0f;
-        }
-    
+            camera->ProcessKeyboard(RIGHT);
+        if(glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+            camera->ProcessMouseScroll(true);
+        if(glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+            camera->ProcessMouseScroll(false);
     }
 
     void render() {
@@ -209,14 +206,14 @@ public:
 
         // projection (because of fov its inside loop)
         glm::mat4 projection = glm::mat4(1.0f);
-        projection = glm::perspective(glm::radians(fov), (float)800 / (float)600, 0.1f, 100.0f);
+        projection = glm::perspective(glm::radians(camera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         unsigned int projectionLoc = glGetUniformLocation(ourShader->ID, "projection");
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 
         // camera
         glm::mat4 view;
-        view = glm::lookAt(cameraPos, cameraPos+cameraFront, cameraUp);
+        view = camera->GetViewMatrix();
         unsigned int viewLoc = glGetUniformLocation(ourShader->ID, "view");
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
@@ -272,41 +269,23 @@ public:
 
 
     static void static_mouse_callback(GLFWwindow* window, double xpos, double ypos) {
-        // Pobierz wskaźnik do instancji klasy Window
         Window* instance = static_cast<Window*>(glfwGetWindowUserPointer(window));
-        
-        // Wywołaj instancyjną metodę, aby przetworzyć ruch myszy
         instance->mouse_callback(window, xpos, ypos);
     }
 
     void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
-        if (firstMouse) { // initially set to true
+        if (firstMouse) {
+            glfwSetCursorPos(window, lastX, lastY);
             lastX = xpos;
             lastY = ypos;
             firstMouse = false;
         }
             
         float xoffset = xpos - lastX;
-        float yoffset = lastY - ypos; // reversed since y-coordinates range from bottom to top
+        float yoffset = lastY - ypos;
         lastX = xpos;
         lastY = ypos;
 
-        float sensitivity = 0.1f;
-        xoffset *= sensitivity;
-        yoffset *= sensitivity;
-
-        yaw   += xoffset;
-        pitch += yoffset;
-
-        if(pitch > 89.0f)
-            pitch =  89.0f;
-        if(pitch < -89.0f)
-            pitch = -89.0f;
-
-        glm::vec3 direction;
-        direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-        direction.y = sin(glm::radians(pitch));
-        direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-        cameraFront = glm::normalize(direction);
+        camera->ProcessMouseMovement(xoffset, yoffset);
     }
 };
