@@ -208,6 +208,10 @@ public:
             camera->ProcessKeyboard(LEFT);
         if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
             camera->ProcessKeyboard(RIGHT);
+        if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+            camera->ProcessKeyboard(UP);
+        if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+            camera->ProcessKeyboard(DOWN);
         if(glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
             camera->ProcessMouseScroll(true);
         if(glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
