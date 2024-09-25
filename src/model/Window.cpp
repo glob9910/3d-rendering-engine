@@ -23,9 +23,11 @@ public:
     const int SCR_HEIGHT = 600;
 
     unsigned int VAO;
+    unsigned int lightVAO;
     unsigned int texture1;
     unsigned int texture2;
     Shader* ourShader;
+    Shader* lightningShader;
 
     Camera* camera;
     float lastX = SCR_WIDTH / 2.0f;
@@ -33,48 +35,93 @@ public:
     bool firstMouse = true;
 
     float vertices[256] = {
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-        0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f, 
+         0.5f, -0.5f, -0.5f,  
+         0.5f,  0.5f, -0.5f,  
+         0.5f,  0.5f, -0.5f,  
+        -0.5f,  0.5f, -0.5f, 
+        -0.5f, -0.5f, -0.5f, 
 
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f, 
+         0.5f, -0.5f,  0.5f,  
+         0.5f,  0.5f,  0.5f,  
+         0.5f,  0.5f,  0.5f,  
+        -0.5f,  0.5f,  0.5f, 
+        -0.5f, -0.5f,  0.5f, 
 
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f, 
+        -0.5f,  0.5f, -0.5f, 
+        -0.5f, -0.5f, -0.5f, 
+        -0.5f, -0.5f, -0.5f, 
+        -0.5f, -0.5f,  0.5f, 
+        -0.5f,  0.5f,  0.5f, 
 
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  
+         0.5f,  0.5f, -0.5f,  
+         0.5f, -0.5f, -0.5f,  
+         0.5f, -0.5f, -0.5f,  
+         0.5f, -0.5f,  0.5f,  
+         0.5f,  0.5f,  0.5f,  
 
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 
+         0.5f, -0.5f, -0.5f,  
+         0.5f, -0.5f,  0.5f,  
+         0.5f, -0.5f,  0.5f,  
+        -0.5f, -0.5f,  0.5f, 
+        -0.5f, -0.5f, -0.5f, 
 
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+        -0.5f,  0.5f, -0.5f, 
+         0.5f,  0.5f, -0.5f,  
+         0.5f,  0.5f,  0.5f,  
+         0.5f,  0.5f,  0.5f,  
+        -0.5f,  0.5f,  0.5f, 
+        -0.5f,  0.5f, -0.5f, 
     };
+
+    // this is with textures: 
+    // float vertices[256] = {
+    //     -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+    //     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+    //     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    //     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    //     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+    //     -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+    //     -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    //     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+    //     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+    //     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+    //     -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+    //     -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+    //     -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    //     -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    //     -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    //     -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    //     -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    //     -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+    //     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    //     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    //     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    //     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    //     0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    //     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+    //     -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    //     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+    //     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+    //     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+    //     -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    //     -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+    //     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+    //     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    //     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    //     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    //     -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+    //     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+    // };
     // unused:
     unsigned int indices[6] = {  // note that we start from 0!
         0, 1, 3,    // first triangle
@@ -93,6 +140,8 @@ public:
         glm::vec3( 1.5f,  0.2f, -1.5f), 
         glm::vec3(-1.3f,  1.0f, -1.5f)  
     };
+
+    glm::vec3 lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
 
     Window(GLFWwindow* window) {
         if(window == NULL) {
@@ -117,6 +166,7 @@ public:
         // model
         // build and compile our shaderProgram
         ourShader = new Shader("src/model/shaders/shader.vs", "src/model/shaders/shader.fs");
+        lightningShader = new Shader("src/model/shaders/lightShader.vs", "src/model/shaders/lightShader.fs");
 
         // vertex array object (VAO) - italian siren
         glGenVertexArrays(1, &VAO);
@@ -130,11 +180,11 @@ public:
 
         // vertex atributes structure in VBO
         // position attribute
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
         // texture attribute
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
+        // glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+        // glEnableVertexAttribArray(1);
 
         // element buffer object (EBO) - for indexed vertices - less memory consumption for bigger models
         unsigned int EBO;
@@ -142,8 +192,16 @@ public:
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
         
-        // unbind VAO etc
-        glBindVertexArray(0);
+        // lightning VAO
+        glGenVertexArrays(1, &lightVAO);
+        glBindVertexArray(lightVAO);
+        // leaving the VBO the same as for the normal objects
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+
+        // // unbind VAO etc
+        // glBindVertexArray(0);
         
         // textures
         stbi_set_flip_vertically_on_load(true);
@@ -153,6 +211,12 @@ public:
         ourShader->setInt("texture1", 0);
         ourShader->setInt("texture2", 1);
     
+        // set lightning colors
+        glm::vec3 objectColor = glm::vec3(1.0f, 0.5f, 0.31f);
+        glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+        ourShader->setVec3("objectColor", objectColor);
+        ourShader->setVec3("lightColor", lightColor);
+
         // camera
         camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
@@ -195,29 +259,15 @@ public:
         glClear(GL_COLOR_BUFFER_BIT);
         glClear(GL_DEPTH_BUFFER_BIT);
 
-        // bind texture
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture1);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture2);
-
-        // be sure to activate the shader
+        // activate normal shader
+        // projection/view
         ourShader->use();
+        glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view = camera->GetViewMatrix();
+        ourShader->setMat4("projection", projection);
+        ourShader->setMat4("view", view);
 
-        // projection (because of fov its inside loop)
-        glm::mat4 projection = glm::mat4(1.0f);
-        projection = glm::perspective(glm::radians(camera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        unsigned int projectionLoc = glGetUniformLocation(ourShader->ID, "projection");
-        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-
-        // camera
-        glm::mat4 view;
-        view = camera->GetViewMatrix();
-        unsigned int viewLoc = glGetUniformLocation(ourShader->ID, "view");
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-
-        // now render the triangles
+        // transform and draw boxes
         glBindVertexArray(VAO);
         for(unsigned int i = 0; i < 10; i++) {
             glm::mat4 model = glm::mat4(1.0f);
@@ -228,11 +278,22 @@ public:
             // rotation with time
             model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
 
-            unsigned int modelLoc = glGetUniformLocation(ourShader->ID, "model");
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
+            ourShader->setMat4("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
+
+        // lamp object and activate light shader
+        lightningShader->use();
+        lightningShader->setMat4("projection", projection);
+        lightningShader->setMat4("view", view);
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, lightPos);
+        //scale eventually here
+        //model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
+        lightningShader->setMat4("model", model);
+
+        glBindVertexArray(lightVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
     }
 
     // texture
