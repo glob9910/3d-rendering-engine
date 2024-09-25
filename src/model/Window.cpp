@@ -183,7 +183,14 @@ public:
         
         // set lightning colors
         glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-        ourShader->setVec3("light.position", lightPos);
+        glm::vec3 lightDirection = glm::vec3(0.0f, -1.0f, 0.0f);
+        //ourShader->setVec3("light.position", lightPos);
+        //ourShader->setVec3("light.direction", lightDirection);
+        // for flashlight:
+        ourShader->setVec3("light.position",  camera->Position);
+        ourShader->setVec3("light.direction", camera->Front);
+        ourShader->setFloat("light.cutOff",   glm::cos(glm::radians(12.5f)));
+        ourShader->setFloat("light.outerCutOff",   glm::cos(glm::radians(17.5f)));
         ourShader->setVec3("viewPos", camera->Position);
         // set material
         glm::vec3 ambient = glm::vec3(1.0f, 0.5f, 0.31f);
@@ -201,6 +208,9 @@ public:
         ourShader->setVec3("light.ambient", ambient);
         ourShader->setVec3("light.diffuse", diffuse);
         ourShader->setVec3("light.specular", specular);
+        ourShader->setFloat("light.constant", 1.0f);
+        ourShader->setFloat("light.linear", 0.09f);
+        ourShader->setFloat("light.quadratic", 0.032f);
 
 
         while(!glfwWindowShouldClose(window)) {
