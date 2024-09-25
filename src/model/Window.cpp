@@ -101,7 +101,13 @@ public:
         glm::vec3(-1.3f,  1.0f, -1.5f)  
     };
 
-    glm::vec3 lightPos = glm::vec3(1.0f, 1.0f, 1.0f);
+    glm::vec3 pointLightPositions[32] = {
+        glm::vec3( 0.7f,  0.2f,  2.0f),
+        glm::vec3( 2.3f, -3.3f, -4.0f),
+        glm::vec3(-4.0f,  2.0f, -12.0f),
+        glm::vec3( 0.0f,  0.0f, -3.0f)
+    };  
+
 
     Window(GLFWwindow* window) {
         if(window == NULL) {
@@ -181,37 +187,76 @@ public:
         ourShader->setInt("material.diffuse", 2);
         ourShader->setInt("material.specular", 3);
         
-        // set lightning colors
-        glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-        glm::vec3 lightDirection = glm::vec3(0.0f, -1.0f, 0.0f);
-        //ourShader->setVec3("light.position", lightPos);
-        //ourShader->setVec3("light.direction", lightDirection);
-        // for flashlight:
-        ourShader->setVec3("light.position",  camera->Position);
-        ourShader->setVec3("light.direction", camera->Front);
-        ourShader->setFloat("light.cutOff",   glm::cos(glm::radians(12.5f)));
-        ourShader->setFloat("light.outerCutOff",   glm::cos(glm::radians(17.5f)));
-        ourShader->setVec3("viewPos", camera->Position);
         // set material
         glm::vec3 ambient = glm::vec3(1.0f, 0.5f, 0.31f);
         glm::vec3 diffuse = glm::vec3(1.0f, 0.5f, 0.31f);
         glm::vec3 specular = glm::vec3(0.5f, 0.5f, 0.5f);
         float shininess = 32.0f;
-        ourShader->setVec3("material.ambient", ambient);
+        //ourShader->setVec3("material.ambient", ambient);
         ourShader->setVec3("material.diffuse", diffuse);
         ourShader->setVec3("material.specular", specular);
         ourShader->setFloat("material.shininess", shininess);
+        
         // set light
+        glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+        glm::vec3 lightDirection = glm::vec3(0.0f, -1.0f, 0.0f);
         ambient = glm::vec3(0.2f, 0.2f, 0.2f);
         diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
         specular = glm::vec3(1.0f, 1.0f, 1.0f);
-        ourShader->setVec3("light.ambient", ambient);
-        ourShader->setVec3("light.diffuse", diffuse);
-        ourShader->setVec3("light.specular", specular);
-        ourShader->setFloat("light.constant", 1.0f);
-        ourShader->setFloat("light.linear", 0.09f);
-        ourShader->setFloat("light.quadratic", 0.032f);
+        ourShader->setVec3("dirLight.direction", camera->Front);
+        ourShader->setVec3("dirLight.ambient", ambient);
+        ourShader->setVec3("dirLight.diffuse", diffuse);
+        ourShader->setVec3("dirLight.specular", specular);
+        
+        // point light 1
+        ourShader->setVec3("pointLight[0].position", pointLightPositions[0]);
+        ourShader->setVec3("pointLight[0].ambient", ambient);
+        ourShader->setVec3("pointLight[0].diffuse", diffuse);
+        ourShader->setVec3("pointLight[0].specular", specular);
+        ourShader->setFloat("pointLight[0].constant", 1.0f);
+        ourShader->setFloat("pointLight[0].linear", 0.09f);
+        ourShader->setFloat("pointLight[0].quadratic", 0.032f);
+        // point light 2
+        ourShader->setVec3("pointLight[1].position", pointLightPositions[1]);
+        ourShader->setVec3("pointLight[1].ambient", ambient);
+        ourShader->setVec3("pointLight[1].diffuse", diffuse);
+        ourShader->setVec3("pointLight[1].specular", specular);
+        ourShader->setFloat("pointLight[1].constant", 1.0f);
+        ourShader->setFloat("pointLight[1].linear", 0.09f);
+        ourShader->setFloat("pointLight[1].quadratic", 0.032f);
+        // point light 3
+        ourShader->setVec3("pointLight[2].position", pointLightPositions[2]);
+        ourShader->setVec3("pointLight[2].ambient", ambient);
+        ourShader->setVec3("pointLight[2].diffuse", diffuse);
+        ourShader->setVec3("pointLight[2].specular", specular);
+        ourShader->setFloat("pointLight[2].constant", 1.0f);
+        ourShader->setFloat("pointLight[2].linear", 0.09f);
+        ourShader->setFloat("pointLight[2].quadratic", 0.032f);
+        // point light 4
+        ourShader->setVec3("pointLight[3].position", pointLightPositions[3]);
+        ourShader->setVec3("pointLight[3].ambient", ambient);
+        ourShader->setVec3("pointLight[3].diffuse", diffuse);
+        ourShader->setVec3("pointLight[3].specular", specular);
+        ourShader->setFloat("pointLight[3].constant", 1.0f);
+        ourShader->setFloat("pointLight[3].linear", 0.09f);
+        ourShader->setFloat("pointLight[3].quadratic", 0.032f);
+        // spotLight
+        ourShader->setVec3("spotLight.position", camera->Position);
+        ourShader->setVec3("spotLight.direction", camera->Front);
+        ambient = glm::vec3(0.0f, 0.0f, 0.0f);
+        diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+        specular = glm::vec3(1.0f, 1.0f, 1.0f);
+        ourShader->setVec3("spotLight.ambient", ambient);
+        ourShader->setVec3("spotLight.diffuse", diffuse);
+        ourShader->setVec3("spotLight.specular", specular);
+        ourShader->setFloat("spotLight.constant", 1.0f);
+        ourShader->setFloat("spotLight.linear", 0.09f);
+        ourShader->setFloat("spotLight.quadratic", 0.032f);
+        ourShader->setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+        ourShader->setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));     
 
+        ourShader->setVec3("viewPos", camera->Position);
+       
 
         while(!glfwWindowShouldClose(window)) {
             processInput(window);
@@ -289,13 +334,14 @@ public:
         lightningShader->use();
         lightningShader->setMat4("projection", projection);
         lightningShader->setMat4("view", view);
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPos);
-        //model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
-        lightningShader->setMat4("model", model);
-
         glBindVertexArray(lightVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        for(unsigned int i = 0; i < 10; i++) {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, pointLightPositions[i]);
+            
+            lightningShader->setMat4("model", model);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
     }
 
     // texture
