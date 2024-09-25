@@ -1,7 +1,10 @@
 #pragma once
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include <stb_image.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -88,6 +91,7 @@ public:
         while(!glfwWindowShouldClose(window)) {
             processInput(window);
             
+            transform();
             render();
 
             glfwSwapBuffers(window);
@@ -101,6 +105,15 @@ public:
         if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
             glfwSetWindowShouldClose(window, true);
         }
+    }
+
+    // unnecesary now
+    void transform() {
+        glm::mat4 transform = glm::mat4(1.0f);  // make sure to initialize matrix to identity matrix first
+        transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
+        transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0, 0, 1));
+        unsigned int transformLoc = glGetUniformLocation(ourShader->ID, "transform");
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
     }
 
     void render() {
@@ -118,6 +131,22 @@ public:
         ourShader->use();
         ourShader->setInt("texture1", 0);
         ourShader->setInt("texture2", 1);
+
+        // create transformations
+        glm::mat4 model = glm::mat4(1.0f);
+        glm::mat4 view = glm::mat4(1.0f);   // initialize matrix
+        glm::mat4 projection = glm::mat4(1.0f);
+        model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+        projection = glm::perspective(glm::radians(45.0f), 800.0f/600.0f, 0.1f, 100.0f);
+
+        // retrieve the matrix uniform locations
+        unsigned int modelLoc = glGetUniformLocation(ourShader->ID, "model");
+        unsigned int viewLoc = glGetUniformLocation(ourShader->ID, "view");
+        unsigned int projectionLoc = glGetUniformLocation(ourShader->ID, "projection");
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
         // now render the triangle
         glBindVertexArray(VAO);
