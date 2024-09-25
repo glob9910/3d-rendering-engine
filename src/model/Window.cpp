@@ -169,15 +169,17 @@ public:
         ourShader->setInt("texture1", 0);
         ourShader->setInt("texture2", 1);
     
+        // camera
+        camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+
         // set lightning colors
         glm::vec3 objectColor = glm::vec3(1.0f, 0.5f, 0.31f);
         glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
         ourShader->setVec3("objectColor", objectColor);
         ourShader->setVec3("lightColor", lightColor);
         ourShader->setVec3("lightPos", lightPos);
+        ourShader->setVec3("viewPos", camera->Position);
 
-        // camera
-        camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
         while(!glfwWindowShouldClose(window)) {
             processInput(window);
