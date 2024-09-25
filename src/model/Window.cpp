@@ -173,12 +173,25 @@ public:
         camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
         // set lightning colors
-        glm::vec3 objectColor = glm::vec3(1.0f, 0.5f, 0.31f);
         glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-        ourShader->setVec3("objectColor", objectColor);
-        ourShader->setVec3("lightColor", lightColor);
-        ourShader->setVec3("lightPos", lightPos);
+        ourShader->setVec3("light.position", lightPos);
         ourShader->setVec3("viewPos", camera->Position);
+        // set material
+        glm::vec3 ambient = glm::vec3(1.0f, 0.5f, 0.31f);
+        glm::vec3 diffuse = glm::vec3(1.0f, 0.5f, 0.31f);
+        glm::vec3 specular = glm::vec3(0.5f, 0.5f, 0.5f);
+        float shininess = 32.0f;
+        ourShader->setVec3("material.ambient", ambient);
+        ourShader->setVec3("material.diffuse", diffuse);
+        ourShader->setVec3("material.specular", specular);
+        ourShader->setFloat("material.shininess", shininess);
+        // set light
+        ambient = glm::vec3(0.2f, 0.2f, 0.2f);
+        diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+        specular = glm::vec3(1.0f, 1.0f, 1.0f);
+        ourShader->setVec3("light.ambient", ambient);
+        ourShader->setVec3("light.diffuse", diffuse);
+        ourShader->setVec3("light.specular", specular);
 
 
         while(!glfwWindowShouldClose(window)) {
@@ -241,7 +254,7 @@ public:
             //  static rotation
             model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
             // rotation with time
-            //model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
+            model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
 
             ourShader->setMat4("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 36);
