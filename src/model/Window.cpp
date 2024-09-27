@@ -44,6 +44,8 @@ public:
     bool firstMouse = true;
 
     Model* backpackModel;
+    Model* birdModel;
+    unsigned int birdTexture;
 
     // float vertices[1024] = {
     //     // positions          // normals           // texture coords
@@ -183,6 +185,7 @@ public:
 
         // downloaded models
         backpackModel = new Model("src/model/assets/backpack/backpack.obj");
+        birdModel = new Model("src/model/assets/bird/bird.obj");
 
         // // unbind VAO etc
         // glBindVertexArray(0);
@@ -196,6 +199,9 @@ public:
         setTexture(texture2, "src/model/assets/awesomeface.png", true);
         setTexture(diffuseMap, "src/model/assets/container2.png", true);
         setTexture(specularMap, "src/model/assets/container2_specular.png", true);
+
+        setTexture(birdTexture, "src/model/assets/bird/diffuse.jpg", false);
+        
         ourShader->use();
         ourShader->setInt("texture1", 0);
         ourShader->setInt("texture2", 1);
@@ -354,6 +360,15 @@ public:
         model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
         modelShader->setMat4("model", model);
         backpackModel->Draw(*modelShader);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture2);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(10.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+        model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));	// it's a bit too big for our scene, so scale it down
+        modelShader->setMat4("model", model);
+        birdModel->Draw(*modelShader);
 
         // lamp object and activate light shader
         lightningShader->use();
