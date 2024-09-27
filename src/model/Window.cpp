@@ -19,6 +19,8 @@
 
 #include "Model.cpp"
 
+#include "Texture.cpp"
+
 
 class Window {
 
@@ -29,10 +31,14 @@ public:
     unsigned int VAO;
     unsigned int lightVAO;
     // textures
-    unsigned int texture1;
-    unsigned int texture2;
-    unsigned int diffuseMap;
-    unsigned int specularMap;
+    // unsigned int texture1;
+    // unsigned int texture2;
+    // unsigned int diffuseMap;
+    // unsigned int specularMap;
+    Texture* texture1;
+    Texture* texture2;
+    Texture* diffuseMap;
+    Texture* specularMap;
 
     Shader* ourShader;
     Shader* lightningShader;
@@ -45,77 +51,12 @@ public:
 
     Model* backpackModel;
     Model* birdModel;
-    unsigned int birdTexture;
-
-    // float vertices[1024] = {
-    //     // positions          // normals           // texture coords
-    //     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-    //     0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
-    //     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-    //     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-    //     -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
-    //     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-
-    //     -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-    //     0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
-    //     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-    //     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-    //     -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
-    //     -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-
-    //     -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-    //     -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-    //     -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-    //     -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-    //     -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-    //     -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-
-    //     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-    //     0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-    //     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-    //     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-    //     0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-    //     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-
-    //     -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-    //     0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
-    //     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-    //     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-    //     -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
-    //     -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-
-    //     -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
-    //     0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
-    //     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-    //     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-    //     -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
-    //     -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
-    // };
-
-    // unsigned int indices[6] = {  // note that we start from 0!
-    //     0, 1, 3,    // first triangle
-    //     1, 2, 3,    // second triangle
-    // };
-
-    // glm::vec3 cubePositions[32] = {
-    //     glm::vec3( 0.0f,  0.0f,  0.0f), 
-    //     glm::vec3( 2.0f,  5.0f, -15.0f), 
-    //     glm::vec3(-1.5f, -2.2f, -2.5f),  
-    //     glm::vec3(-3.8f, -2.0f, -12.3f),  
-    //     glm::vec3( 2.4f, -0.4f, -3.5f),  
-    //     glm::vec3(-1.7f,  3.0f, -7.5f),  
-    //     glm::vec3( 1.3f, -2.0f, -2.5f),  
-    //     glm::vec3( 1.5f,  2.0f, -2.5f), 
-    //     glm::vec3( 1.5f,  0.2f, -1.5f), 
-    //     glm::vec3(-1.3f,  1.0f, -1.5f)  
-    // };
-
-    // glm::vec3 pointLightPositions[32] = {
-    //     glm::vec3( 0.7f,  0.2f,  2.0f),
-    //     glm::vec3( 2.3f, -3.3f, -4.0f),
-    //     glm::vec3(-4.0f,  2.0f, -12.0f),
-    //     glm::vec3( 0.0f,  0.0f, -3.0f)
-    // };  
+    Model* penguinModel;
+    Model* knightModel;
+    Texture* birdTexture;
+    Texture* backpackTexture;
+    Texture* penguinTexture;
+    Texture* knightTexture;
 
 
     Window(GLFWwindow* window) {
@@ -183,10 +124,7 @@ public:
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
 
-        // downloaded models
-        backpackModel = new Model("src/model/assets/backpack/backpack.obj");
-        birdModel = new Model("src/model/assets/bird/bird.obj");
-
+        
         // // unbind VAO etc
         // glBindVertexArray(0);
         
@@ -195,12 +133,22 @@ public:
 
         // textures
         //stbi_set_flip_vertically_on_load(true);
-        setTexture(texture1, "src/model/assets/container.jpg", false);
-        setTexture(texture2, "src/model/assets/awesomeface.png", true);
-        setTexture(diffuseMap, "src/model/assets/container2.png", true);
-        setTexture(specularMap, "src/model/assets/container2_specular.png", true);
+        texture1 = new Texture("src/model/assets/container.jpg", false);
+        texture2 = new Texture("src/model/assets/container.jpg", false);
+        diffuseMap = new Texture("src/model/assets/container2.png", true);
+        specularMap = new Texture("src/model/assets/container2_specular.png", true);
 
-        setTexture(birdTexture, "src/model/assets/bird/diffuse.jpg", false);
+        birdTexture = new Texture("src/model/assets/bird/diffuse.jpg", false);
+        backpackTexture = new Texture("src/model/assets/backpack/diffuse.jpg", false);
+        penguinTexture = new Texture("src/model/assets/penguin/PenguinDiffuseColor.png", true);
+        knightTexture = new Texture("src/model/assets/knight/armor.jpg", false);
+
+        // downloaded models
+        backpackModel = new Model("src/model/assets/backpack/backpack.obj", *backpackTexture);
+        birdModel = new Model("src/model/assets/bird/bird.obj", *birdTexture);
+        penguinModel = new Model("src/model/assets/penguin/PenguinBaseMesh.obj", *penguinTexture);
+        knightModel = new Model("src/model/assets/knight/knight.obj", *knightTexture);
+        //setTexture(birdTexture, "src/model/assets/bird/diffuse.jpg", false);
         
         ourShader->use();
         ourShader->setInt("texture1", 0);
@@ -332,9 +280,9 @@ public:
 
         // activate texture (diffuse and specular map)
         glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, diffuseMap);
+        glBindTexture(GL_TEXTURE_2D, diffuseMap->ID);
         glActiveTexture(GL_TEXTURE3);
-        glBindTexture(GL_TEXTURE_2D, specularMap);
+        glBindTexture(GL_TEXTURE_2D, specularMap->ID);
 
         // transform and draw boxes
         glBindVertexArray(VAO);
@@ -353,6 +301,10 @@ public:
 
         //draw downloaded model
         modelShader->use();
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, backpackTexture->ID);
+
         lightningShader->setMat4("projection", projection);
         lightningShader->setMat4("view", view);
         glm::mat4 model = glm::mat4(1.0f);
@@ -362,13 +314,32 @@ public:
         backpackModel->Draw(*modelShader);
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture2);
+        glBindTexture(GL_TEXTURE_2D, birdTexture->ID);
 
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(10.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
         model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));	// it's a bit too big for our scene, so scale it down
         modelShader->setMat4("model", model);
         birdModel->Draw(*modelShader);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, penguinTexture->ID);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(20.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        modelShader->setMat4("model", model);
+        penguinModel->Draw(*modelShader);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, knightTexture->ID);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(-10.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+        model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));	// it's a bit too big for our scene, so scale it down
+        modelShader->setMat4("model", model);
+        knightModel->Draw(*modelShader);
+
 
         // lamp object and activate light shader
         lightningShader->use();
@@ -384,37 +355,37 @@ public:
         }
     }
 
-    // texture
-    void setTexture(unsigned int &texture, std::string sourceFile, bool isPNG) {
-        glGenTextures(1, &texture);
-        glBindTexture(GL_TEXTURE_2D, texture);  
+    // // texture
+    // void setTexture(unsigned int &texture, std::string sourceFile, bool isPNG) {
+    //     glGenTextures(1, &texture);
+    //     glBindTexture(GL_TEXTURE_2D, texture);  
         
-        // set the texture wrapping
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        // set the texture filtering options
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    //     // set the texture wrapping
+    //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+    //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    //     // set the texture filtering options
+    //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        // load and generate the texture
-        int width, height, nrChannels;
-        unsigned char *data = stbi_load(sourceFile.c_str(), &width, &height, &nrChannels, 0);
-        if(data) {
-            if(isPNG) {
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-            }
-            else {
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-            }
-            glGenerateMipmap(GL_TEXTURE_2D);
-        }
-        else {
-            std::cout << "Failed to load texture" << std::endl;
-        }
+    //     // load and generate the texture
+    //     int width, height, nrChannels;
+    //     unsigned char *data = stbi_load(sourceFile.c_str(), &width, &height, &nrChannels, 0);
+    //     if(data) {
+    //         if(isPNG) {
+    //             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    //         }
+    //         else {
+    //             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    //         }
+    //         glGenerateMipmap(GL_TEXTURE_2D);
+    //     }
+    //     else {
+    //         std::cout << "Failed to load texture" << std::endl;
+    //     }
         
-        // free image memory
-        stbi_image_free(data);
-    }
+    //     // free image memory
+    //     stbi_image_free(data);
+    // }
 
 
     static void static_mouse_callback(GLFWwindow* window, double xpos, double ypos) {
