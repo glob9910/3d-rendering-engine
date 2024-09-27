@@ -146,8 +146,8 @@ public:
         // downloaded models
         backpackModel = new Model("src/model/assets/backpack/backpack.obj", *backpackTexture);
         birdModel = new Model("src/model/assets/bird/bird.obj", *birdTexture);
-        penguinModel = new Model("src/model/assets/penguin/PenguinBaseMesh.obj", *penguinTexture);
-        knightModel = new Model("src/model/assets/knight/knight.obj", *knightTexture);
+        penguinModel = new Model("src/model/assets/penguin/penguin.obj", *penguinTexture);
+        knightModel = new Model("src/model/assets/knight/knight2.obj", *knightTexture);
         //setTexture(birdTexture, "src/model/assets/bird/diffuse.jpg", false);
         
         ourShader->use();
@@ -299,46 +299,16 @@ public:
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
-        //draw downloaded model
+        
+        // //draw downloaded model
         modelShader->use();
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, backpackTexture->ID);
-
-        lightningShader->setMat4("projection", projection);
-        lightningShader->setMat4("view", view);
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(15.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-        modelShader->setMat4("model", model);
-        backpackModel->Draw(*modelShader);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, birdTexture->ID);
-
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(10.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));	// it's a bit too big for our scene, so scale it down
-        modelShader->setMat4("model", model);
-        birdModel->Draw(*modelShader);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, penguinTexture->ID);
-
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(20.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-        modelShader->setMat4("model", model);
-        penguinModel->Draw(*modelShader);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, knightTexture->ID);
-
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-10.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));	// it's a bit too big for our scene, so scale it down
-        modelShader->setMat4("model", model);
-        knightModel->Draw(*modelShader);
+        modelShader->setMat4("projection", projection);
+        modelShader->setMat4("view", view);
+        
+        drawModel(backpackModel, backpackTexture, glm::vec3(15.0f, 0.0f, 0.0f), glm::vec3(1.0f));
+        drawModel(birdModel, birdTexture, glm::vec3(10.0f, 0.0f, 0.0f), glm::vec3(0.25f));
+        drawModel(penguinModel, penguinTexture, glm::vec3(20.0f, 0.0f, 0.0f), glm::vec3(1.0f));
+        drawModel(knightModel, knightTexture, glm::vec3(-10.0f, 0.0f, 0.0f), glm::vec3(5.0f));
 
 
         // lamp object and activate light shader
@@ -355,37 +325,25 @@ public:
         }
     }
 
-    // // texture
-    // void setTexture(unsigned int &texture, std::string sourceFile, bool isPNG) {
-    //     glGenTextures(1, &texture);
-    //     glBindTexture(GL_TEXTURE_2D, texture);  
-        
-    //     // set the texture wrapping
-    //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-    //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    //     // set the texture filtering options
-    //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    //     // load and generate the texture
-    //     int width, height, nrChannels;
-    //     unsigned char *data = stbi_load(sourceFile.c_str(), &width, &height, &nrChannels, 0);
-    //     if(data) {
-    //         if(isPNG) {
-    //             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    //         }
-    //         else {
-    //             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    //         }
-    //         glGenerateMipmap(GL_TEXTURE_2D);
-    //     }
-    //     else {
-    //         std::cout << "Failed to load texture" << std::endl;
-    //     }
-        
-    //     // free image memory
-    //     stbi_image_free(data);
-    // }
+    void drawModel(Model* model, Texture* texture, glm::vec3 position, glm::vec3 scale) {
+            // Aktywuj odpowiedni shader dla modelu
+            modelShader->use();
+            
+            // Ustaw teksturę
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, texture->ID);
+            
+            // Tworzenie macierzy modelu
+            glm::mat4 modelMatrix = glm::mat4(1.0f);
+            modelMatrix = glm::translate(modelMatrix, position);
+            modelMatrix = glm::scale(modelMatrix, scale);
+            
+            // Ustaw model
+            modelShader->setMat4("model", modelMatrix);
+            
+            // Rysowanie modelu
+            model->Draw(*modelShader);
+        }
 
 
     static void static_mouse_callback(GLFWwindow* window, double xpos, double ypos) {
