@@ -14,12 +14,13 @@
 #include "Shader.cpp"
 #include "Camera.cpp"
 
-#include "Cube.cpp"
+#include "Box.cpp"
 #include "Light.cpp"
 
 #include "Model.cpp"
 
 #include "Texture.cpp"
+
 
 
 class Window {
@@ -29,12 +30,8 @@ public:
     const int SCR_HEIGHT = 600;
 
     unsigned int VAO;
+    unsigned int VBO;
     unsigned int lightVAO;
-    // textures
-    // unsigned int texture1;
-    // unsigned int texture2;
-    // unsigned int diffuseMap;
-    // unsigned int specularMap;
     Texture* texture1;
     Texture* texture2;
     Texture* diffuseMap;
@@ -58,6 +55,19 @@ public:
     Texture* penguinTexture;
     Texture* knightTexture;
 
+    std::vector<Box> boxes;
+    glm::vec3 boxPositions[10] = {
+        glm::vec3( 0.0f,  0.0f,  0.0f), 
+        glm::vec3( 2.0f,  5.0f, -15.0f), 
+        glm::vec3(-1.5f, -2.2f, -2.5f),  
+        glm::vec3(-3.8f, -2.0f, -12.3f),  
+        glm::vec3( 2.4f, -0.4f, -3.5f),  
+        glm::vec3(-1.7f,  3.0f, -7.5f),  
+        glm::vec3( 1.3f, -2.0f, -2.5f),  
+        glm::vec3( 1.5f,  2.0f, -2.5f), 
+        glm::vec3( 1.5f,  0.2f, -1.5f), 
+        glm::vec3(-1.3f,  1.0f, -1.5f)  
+    };
 
     Window(GLFWwindow* window) {
         if(window == NULL) {
@@ -88,34 +98,9 @@ public:
         lightningShader = new Shader("src/model/shaders/lightShader.vs", "src/model/shaders/lightShader.fs");
         modelShader = new Shader("src/model/shaders/modelShader.vs", "src/model/shaders/modelShader.fs");
 
+        //boxes
+        createBoxes();
 
-        // vertex array object (VAO) - italian siren
-        glGenVertexArrays(1, &VAO);
-        glBindVertexArray(VAO);
-
-        // vertex buffer objects (VBO)
-        unsigned int VBO;
-        glGenBuffers(1, &VBO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-        // vertex atributes structure in VBO
-        // position attribute
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-        // normal attribute
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(2);
-        // texture attribute
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-
-        // element buffer object (EBO) - for indexed vertices - less memory consumption for bigger models
-        unsigned int EBO;
-        glGenBuffers(1, &EBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-        
         // lightning VAO
         glGenVertexArrays(1, &lightVAO);
         glBindVertexArray(lightVAO);
@@ -272,9 +257,10 @@ public:
 
         // activate normal shader
         // projection/view
-        ourShader->use();
         glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = camera->GetViewMatrix();
+        
+        ourShader->use();
         ourShader->setMat4("projection", projection);
         ourShader->setMat4("view", view);
 
@@ -286,9 +272,11 @@ public:
 
         // transform and draw boxes
         glBindVertexArray(VAO);
-        for(unsigned int i = 0; i < 10; i++) {
+        for(int i=0; i<sizeof(boxPositions) / sizeof(boxPositions[0]); i++) {
             glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, cubePositions[i]);
+            model = glm::translate(model, boxPositions[i]);
+
+            // rotation
             float angle = 20.0f * i; 
             //  static rotation
             model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
@@ -298,7 +286,6 @@ public:
             ourShader->setMat4("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
-
         
         // //draw downloaded model
         modelShader->use();
@@ -365,5 +352,31 @@ public:
         lastY = ypos;
 
         camera->ProcessMouseMovement(xoffset, yoffset);
+    }
+
+    void createBoxes() {
+        for(int i=0; i<sizeof(boxPositions) / sizeof(boxPositions[0]); i++) {
+            boxes.push_back(Box(boxPositions[i]));
+        }
+
+        // vertex array object (VAO) - italian siren
+        glGenVertexArrays(1, &VAO);
+        glBindVertexArray(VAO);
+
+        // vertex buffer objects (VBO)
+        glGenBuffers(1, &VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+        // vertex atributes structure in VBO
+        // position attribute
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+        // normal attribute
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+        // texture attribute
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+        glEnableVertexAttribArray(1);
     }
 };
