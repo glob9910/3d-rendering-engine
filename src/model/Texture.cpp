@@ -4,8 +4,8 @@
 
 #include <glad/glad.h> 
 #include <string>
-#include <stb_image.h> // Upewnij się, że masz ten plik w swoim projekcie
-#include "Shader.cpp"  // Zakładamy, że masz zdefiniowaną klasę Shader
+#include <stb_image.h>
+#include "Shader.cpp"
 #include <glm/glm.hpp>
 
 

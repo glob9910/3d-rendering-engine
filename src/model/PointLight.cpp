@@ -5,6 +5,11 @@
 #include "Shader.cpp"
 
 
+
+/// nieużywane
+
+
+
 class PointLight {
 public:
     glm::vec3 position;

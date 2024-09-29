@@ -33,14 +33,13 @@ public:
     static unsigned int VAO;
     static Shader* boxShader;
 
-    // Constructor
+
     Box(glm::vec3 position, glm::vec3 scale = glm::vec3(1.0f), glm::vec3 rotation = glm::vec3(0.0f)) {
         this->position = position;
         this->scale = scale;
         this->rotation = rotation;
     }
 
-    // Set the textures (diffuse and specular)
     static void setTexture(Texture* diffuse, Texture* specular) {
         diffuseTexture = diffuse;
         specularTexture = specular;
@@ -52,18 +51,17 @@ public:
 
     void draw(Shader* shader = Box::boxShader) {
         shader->use();
-        // activate texture (diffuse and specular map)
+
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, diffuseTexture->ID);
         glActiveTexture(GL_TEXTURE3);
         glBindTexture(GL_TEXTURE_2D, specularTexture->ID);
 
-        // transform and draw boxes
         glBindVertexArray(VAO);
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, position);
 
-        model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
+        //model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
 
         shader->setMat4("model", model);
         glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -71,30 +69,30 @@ public:
 
 
     static unsigned int setVAO() {
-        // Generate and bind vertex array object (VAO)
-        glGenVertexArrays(1, &VAO);  // Generate the VAO and assign it to the member variable
-        glBindVertexArray(VAO);       // Bind the newly generated VAO
+        // VAO
+        glGenVertexArrays(1, &VAO);
+        glBindVertexArray(VAO);
 
-        // Vertex buffer objects (VBO)
+        // VBO
         unsigned int VBO;
         glGenBuffers(1, &VBO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-        // Vertex attributes structure in VBO
-        // Position attribute
+        // vertex attributes structure in VBO
+        // position attribute
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
         
-        // Normal attribute
+        // normal attribute
         glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(2);
         
-        // Texture attribute
+        // texture attribute
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
-        // Return the VAO
+  
         return VAO;
     }
 };

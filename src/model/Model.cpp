@@ -1,6 +1,5 @@
 #pragma once
 
-//#include <stb_image.h>
 #include <glm/glm.hpp>
 
 #include "Mesh.cpp"
@@ -20,8 +19,7 @@ public:
         textures_loaded.push_back(texture);
     }
 
-    void draw()
-    {
+    void draw() {
         for(unsigned int i = 0; i < meshes.size(); i++)
             meshes[i].draw();
     }
