@@ -15,7 +15,6 @@
 #include "Camera.cpp"
 
 #include "Box.cpp"
-#include "Light.cpp"
 
 #include "Model.cpp"
 
@@ -67,6 +66,13 @@ public:
         glm::vec3( 1.5f,  2.0f, -2.5f), 
         glm::vec3( 1.5f,  0.2f, -1.5f), 
         glm::vec3(-1.3f,  1.0f, -1.5f)  
+    };
+
+    glm::vec3 pointLightPositions[4] {
+        glm::vec3( 2.3f, -1.0f, -3.5f),  
+        glm::vec3( 1.5f,  -1.0f, 2.5f), 
+        glm::vec3( 0.5f,  0.2f, -0.5f), 
+        glm::vec3(-4.3f,  4.0f, -1.5f)
     };
 
     Window(GLFWwindow* window) {
@@ -157,7 +163,7 @@ public:
         ambient = glm::vec3(0.2f, 0.2f, 0.2f);
         diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
         specular = glm::vec3(1.0f, 1.0f, 1.0f);
-        ourShader->setVec3("dirLight.direction", camera->Front);
+        ourShader->setVec3("dirLight.direction", camera->front);
         ourShader->setVec3("dirLight.ambient", ambient);
         ourShader->setVec3("dirLight.diffuse", diffuse);
         ourShader->setVec3("dirLight.specular", specular);
@@ -195,8 +201,8 @@ public:
         ourShader->setFloat("pointLight[3].linear", 0.09f);
         ourShader->setFloat("pointLight[3].quadratic", 0.032f);
         // spotLight
-        ourShader->setVec3("spotLight.position", camera->Position);
-        ourShader->setVec3("spotLight.direction", camera->Front);
+        ourShader->setVec3("spotLight.position", camera->position);
+        ourShader->setVec3("spotLight.direction", camera->front);
         ambient = glm::vec3(0.0f, 0.0f, 0.0f);
         diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
         specular = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -209,7 +215,7 @@ public:
         ourShader->setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
         ourShader->setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));     
 
-        ourShader->setVec3("viewPos", camera->Position);
+        ourShader->setVec3("viewPos", camera->position);
        
 
         while(!glfwWindowShouldClose(window)) {
@@ -232,21 +238,21 @@ public:
             glfwSetWindowShouldClose(window, true);
         
         if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            camera->ProcessKeyboard(FORWARD);
+            camera->processKeyboard(FORWARD);
         if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            camera->ProcessKeyboard(BACKWARD);
+            camera->processKeyboard(BACKWARD);
         if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            camera->ProcessKeyboard(LEFT);
+            camera->processKeyboard(LEFT);
         if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            camera->ProcessKeyboard(RIGHT);
+            camera->processKeyboard(RIGHT);
         if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-            camera->ProcessKeyboard(UP);
+            camera->processKeyboard(UP);
         if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-            camera->ProcessKeyboard(DOWN);
+            camera->processKeyboard(DOWN);
         if(glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-            camera->ProcessMouseScroll(true);
+            camera->processMouseScroll(true);
         if(glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
-            camera->ProcessMouseScroll(false);
+            camera->processMouseScroll(false);
     }
 
     void render() {
@@ -257,7 +263,7 @@ public:
 
         // activate normal shader
         // projection/view
-        glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(camera->zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = camera->GetViewMatrix();
         
         ourShader->use();
@@ -329,7 +335,7 @@ public:
             modelShader->setMat4("model", modelMatrix);
             
             // Rysowanie modelu
-            model->Draw(*modelShader);
+            model->draw();
         }
 
 
@@ -351,7 +357,7 @@ public:
         lastX = xpos;
         lastY = ypos;
 
-        camera->ProcessMouseMovement(xoffset, yoffset);
+        camera->processMouseMovement(xoffset, yoffset);
     }
 
     void createBoxes() {
