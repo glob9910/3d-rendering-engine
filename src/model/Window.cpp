@@ -31,11 +31,8 @@ public:
     unsigned int VAO;
     unsigned int VBO;
     unsigned int lightVAO;
-    Texture* texture1;
-    Texture* texture2;
-    Texture* diffuseMap;
-    Texture* specularMap;
 
+    
     Shader* ourShader;
     Shader* lightningShader;
     Shader* modelShader;
@@ -55,18 +52,7 @@ public:
     Texture* knightTexture;
 
     std::vector<Box> boxes;
-    glm::vec3 boxPositions[10] = {
-        glm::vec3( 0.0f,  0.0f,  0.0f), 
-        glm::vec3( 2.0f,  5.0f, -15.0f), 
-        glm::vec3(-1.5f, -2.2f, -2.5f),  
-        glm::vec3(-3.8f, -2.0f, -12.3f),  
-        glm::vec3( 2.4f, -0.4f, -3.5f),  
-        glm::vec3(-1.7f,  3.0f, -7.5f),  
-        glm::vec3( 1.3f, -2.0f, -2.5f),  
-        glm::vec3( 1.5f,  2.0f, -2.5f), 
-        glm::vec3( 1.5f,  0.2f, -1.5f), 
-        glm::vec3(-1.3f,  1.0f, -1.5f)  
-    };
+    
 
     glm::vec3 pointLightPositions[4] {
         glm::vec3( 2.3f, -1.0f, -3.5f),  
@@ -116,19 +102,10 @@ public:
         glEnableVertexAttribArray(0);
 
         
-        // // unbind VAO etc
-        // glBindVertexArray(0);
-        
         // camera
         camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
-        // textures
-        //stbi_set_flip_vertically_on_load(true);
-        texture1 = new Texture("src/model/assets/container.jpg", false);
-        texture2 = new Texture("src/model/assets/container.jpg", false);
-        diffuseMap = new Texture("src/model/assets/container2.png", true);
-        specularMap = new Texture("src/model/assets/container2_specular.png", true);
-
+        // textures for models
         birdTexture = new Texture("src/model/assets/bird/diffuse.jpg", false);
         backpackTexture = new Texture("src/model/assets/backpack/diffuse.jpg", false);
         penguinTexture = new Texture("src/model/assets/penguin/PenguinDiffuseColor.png", true);
@@ -142,8 +119,8 @@ public:
         //setTexture(birdTexture, "src/model/assets/bird/diffuse.jpg", false);
         
         ourShader->use();
-        ourShader->setInt("texture1", 0);
-        ourShader->setInt("texture2", 1);
+        // ourShader->setInt("texture1", 0);
+        // ourShader->setInt("texture2", 1);
         ourShader->setInt("material.diffuse", 2);
         ourShader->setInt("material.specular", 3);
         
@@ -270,27 +247,10 @@ public:
         ourShader->setMat4("projection", projection);
         ourShader->setMat4("view", view);
 
-        // activate texture (diffuse and specular map)
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, diffuseMap->ID);
-        glActiveTexture(GL_TEXTURE3);
-        glBindTexture(GL_TEXTURE_2D, specularMap->ID);
-
         // transform and draw boxes
         glBindVertexArray(VAO);
-        for(int i=0; i<sizeof(boxPositions) / sizeof(boxPositions[0]); i++) {
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, boxPositions[i]);
-
-            // rotation
-            float angle = 20.0f * i; 
-            //  static rotation
-            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-            // rotation with time
-            model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
-
-            ourShader->setMat4("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+        for(int i = 0; i<10; i++) {
+            boxes[i].draw();
         }
         
         // //draw downloaded model
@@ -361,28 +321,22 @@ public:
     }
 
     void createBoxes() {
+
+        // set texture
+        Box::setTexture(
+            new Texture("src/model/assets/container2.png", true),               // diffuse texture
+            new Texture("src/model/assets/container2_specular.png", true)       // specular texture
+        );
+
+        // set VAO
+        VAO = Box::setVAO();
+
+        // set shader
+        Box::setShader(ourShader);
+        
+        // create boxes
         for(int i=0; i<sizeof(boxPositions) / sizeof(boxPositions[0]); i++) {
             boxes.push_back(Box(boxPositions[i]));
         }
-
-        // vertex array object (VAO) - italian siren
-        glGenVertexArrays(1, &VAO);
-        glBindVertexArray(VAO);
-
-        // vertex buffer objects (VBO)
-        glGenBuffers(1, &VBO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-        // vertex atributes structure in VBO
-        // position attribute
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-        // normal attribute
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(2);
-        // texture attribute
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-        glEnableVertexAttribArray(1);
     }
 };
