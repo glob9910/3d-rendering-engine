@@ -4,8 +4,6 @@
 #include <glad/glad.h>
 #include <vector>
 
-#include "Cube.cpp"
-
 class Light {
 public:
 
@@ -13,20 +11,20 @@ public:
 
 
     static unsigned int setVAO() {
-        // VAO
-        glGenVertexArrays(1, &VAO);
-        glBindVertexArray(VAO);
+        // // VAO
+        // glGenVertexArrays(1, &VAO);
+        // glBindVertexArray(VAO);
 
-        // VBO
-        unsigned int VBO;
-        glGenBuffers(1, &VBO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+        // // VBO
+        // unsigned int VBO;
+        // glGenBuffers(1, &VBO);
+        // glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        // glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-        // Vertex attributes structure in VBO
-        // position attribute
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
+        // // Vertex attributes structure in VBO
+        // // position attribute
+        // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+        // glEnableVertexAttribArray(0);
         
         return VAO;
     }

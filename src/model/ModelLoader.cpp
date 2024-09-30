@@ -105,6 +105,6 @@ private:
         }
 
         // Tworzymy siatkę z wygenerowanych wierzchołków i indeksów, na razie brak tekstur
-        return Mesh(meshVertices, indices, {});
+        return Mesh(meshVertices, indices);
     }
 };

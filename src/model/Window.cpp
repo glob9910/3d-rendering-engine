@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -9,18 +8,19 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <cstring>
-
+#include <vector>
+#include <utility>
 #include "../Exception.cpp"
 #include "Shader.cpp"
 #include "Camera.cpp"
+#include "Model.cpp"
+#include "Texture.cpp"
+#include "LoadedModel.cpp"
 
 #include "Box.cpp"
-
-#include "Model.cpp"
-
-#include "Texture.cpp"
-
 #include "Light.cpp"
+
+#include "Renderer.cpp"
 
 class Window {
 
@@ -43,17 +43,6 @@ public:
 
     bool firstMouse = true;
 
-    Model* backpackModel;
-    Model* birdModel;
-    Model* penguinModel;
-    Model* knightModel;
-    Texture* birdTexture;
-    Texture* backpackTexture;
-    Texture* penguinTexture;
-    Texture* knightTexture;
-
-    std::vector<Box> boxes;
-    //std::vector<PointLight> pointLights;
     glm::vec3 pointLightPositions[4] {
         glm::vec3( 2.3f, -1.0f, -3.5f),  
         glm::vec3( 1.5f,  -1.0f, 2.5f), 
@@ -92,83 +81,53 @@ public:
         // camera
         camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
+        Renderer* renderer = new Renderer(SCR_WIDTH, SCR_HEIGHT);
+
         // lights
-        createLights();
-        createPointLights();
+        // createLights();
 
         // boxes
-        createBoxes();
-        
-        // textures for models
-        birdTexture = new Texture("src/model/assets/bird/diffuse.jpg", false);
-        backpackTexture = new Texture("src/model/assets/backpack/diffuse.jpg", false);
-        penguinTexture = new Texture("src/model/assets/penguin/PenguinDiffuseColor.png", true);
-        knightTexture = new Texture("src/model/assets/knight/armor.jpg", false);
+        // createBoxes();
 
-        // downloaded models
-        backpackModel = new Model("src/model/assets/backpack/backpack.obj", *backpackTexture);
-        birdModel = new Model("src/model/assets/bird/bird.obj", *birdTexture);
-        penguinModel = new Model("src/model/assets/penguin/penguin.obj", *penguinTexture);
-        knightModel = new Model("src/model/assets/knight/knight2.obj", *knightTexture);
-        
-        ourShader->setVec3("viewPos", camera->position);    // niew wiem czy to nie powinno byc we while, ale i tak zakomentowalam spotlight
-       
+        Model* backpack = new LoadedModel("src/model/assets/backpack/backpack.obj", new Texture("src/model/assets/backpack/diffuse.jpg", false));
+        Model* bird = new LoadedModel("src/model/assets/bird/bird.obj", new Texture("src/model/assets/bird/diffuse.jpg", false));
+        Model* knight = new LoadedModel("src/model/assets/knight/knight2.obj", new Texture("src/model/assets/knight/armor.jpg", false));
+        Model* penguin = new LoadedModel("src/model/assets/penguin/penguin.obj", new Texture("src/model/assets/penguin/PenguinDiffuseColor.png", true));
 
+        backpack->setPosition(glm::vec3(6, 0, 0));
+        bird->setPosition(glm::vec3(15, 0, 0));
+        knight->setPosition(glm::vec3(-8, 0 ,0));
+        penguin->setPosition(glm::vec3(-1, 0, 0));
+
+        std::vector<Model*>* models = new std::vector<Model*>();    
+        models->push_back(createBox(glm::vec3( 0.0f,  0.0f,  0.0f)));
+        models->push_back(createBox(glm::vec3( 2.0f,  5.0f, -15.0f)));
+        models->push_back(createBox(glm::vec3(-1.5f, -2.2f, -2.5f)));
+        models->push_back(createBox(glm::vec3(-3.8f, -2.0f, -12.3f)));
+        models->push_back(createBox(glm::vec3( 2.4f, -0.4f, -3.5f)));
+        models->push_back(createBox(glm::vec3(-1.7f,  3.0f, -7.5f)));
+        models->push_back(createBox(glm::vec3( 1.3f, -2.0f, -2.5f)));
+        models->push_back(createBox(glm::vec3( 1.5f,  2.0f, -2.5f)));
+        models->push_back(createBox(glm::vec3( 1.5f,  0.2f, -1.5f)));
+        models->push_back(backpack);
+        models->push_back(bird);
+        models->push_back(knight);
+        models->push_back(penguin);
+
+        std::pair<Shader*, std::vector<Model*>*>* modelShaderModels = new std::pair<Shader*, std::vector<Model*>*>(modelShader, models);
+        std::vector<std::pair<Shader*, std::vector<Model*>*>*>* toRender = new std::vector<std::pair<Shader*, std::vector<Model*>*>*>();
+        toRender->push_back(modelShaderModels);
+
+        std::vector<Light*>* lights = new std::vector<Light*>();
+        
         while(!glfwWindowShouldClose(window)) {
             processInput(window);
-            
-            render();
-
+            renderer->render(toRender, lights, camera);
             glfwSwapBuffers(window);
             glfwPollEvents();
         }
 
         glfwTerminate();
-    }
-
-    void render() {
-        // clear the colorbuffer and zbuffer
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        glClear(GL_DEPTH_BUFFER_BIT);
-
-        // projection/view matrices
-        glm::mat4 projection = glm::perspective(glm::radians(camera->zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = camera->GetViewMatrix();
-        
-        // boxes
-        ourShader->use();
-        ourShader->setMat4("projection", projection);
-        ourShader->setMat4("view", view);
-
-        //glBindVertexArray(VAO);
-        for(int i = 0; i<10; i++) {
-            boxes[i].draw(ourShader);
-        }
-        
-        // downloaded models
-        modelShader->use();
-        modelShader->setMat4("projection", projection);
-        modelShader->setMat4("view", view);
-        
-        drawModel(backpackModel, backpackTexture, glm::vec3(15.0f, 0.0f, 0.0f), glm::vec3(1.0f));
-        drawModel(birdModel, birdTexture, glm::vec3(10.0f, 0.0f, 0.0f), glm::vec3(0.25f));
-        drawModel(penguinModel, penguinTexture, glm::vec3(20.0f, 0.0f, 0.0f), glm::vec3(1.0f));
-        drawModel(knightModel, knightTexture, glm::vec3(-10.0f, 0.0f, 0.0f), glm::vec3(5.0f));
-
-        // lamps
-        lightningShader->use();
-        lightningShader->setMat4("projection", projection);
-        lightningShader->setMat4("view", view);
-        glBindVertexArray(lightVAO);
-        for(unsigned int i = 0; i < 1; i++) {
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, pointLightPositions[i]);
-            //model = glm::scale(glm::vec3(0.5f, 0.5f, 0.5f));
-            
-            lightningShader->setMat4("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
     }
 
     void drawModel(Model* model, Texture* texture, glm::vec3 position, glm::vec3 scale) {
@@ -186,6 +145,13 @@ public:
         model->draw();
     }
 
+    Box* createBox(glm::vec3 position) {
+        Box* box = new Box();
+        box->setPosition(position);
+        box->setTexture(new Texture("src/model/assets/container2.png", true));
+        return box;
+    }
+
     void createBoxes() {
         ourShader->use();
         ourShader->setInt("material.diffuse", 2);
@@ -200,24 +166,6 @@ public:
         ourShader->setVec3("material.diffuse", diffuse);
         ourShader->setVec3("material.specular", specular);
         ourShader->setFloat("material.shininess", shininess);
-
-
-        // set texture
-        Box::setTexture(
-            new Texture("src/model/assets/container2.png", true),               // diffuse texture
-            new Texture("src/model/assets/container2_specular.png", true)       // specular texture
-        );
-
-        // set VAO
-        VAO = Box::setVAO();
-
-        // set shader
-        Box::setShader(ourShader);
-        
-        // create boxes
-        for(int i=0; i<sizeof(boxPositions) / sizeof(boxPositions[0]); i++) {
-            boxes.push_back(Box(boxPositions[i]));
-        }
     }
 
     void createLights() {
@@ -312,7 +260,7 @@ public:
         ourShader->setFloat("pointLight[0].linear", 0.09f);
         ourShader->setFloat("pointLight[0].quadratic", 0.032f);
         // point light 2
-        ourShader->setVec3("pointLight[1].position", pointLightPositions[0]);
+        ourShader->setVec3("pointLight[1].position", pointLightPositions[1]);
         ourShader->setVec3("pointLight[1].ambient", ambient);
         ourShader->setVec3("pointLight[1].diffuse", diffuse);
         ourShader->setVec3("pointLight[1].specular", specular);
@@ -320,7 +268,7 @@ public:
         ourShader->setFloat("pointLight[1].linear", 0.09f);
         ourShader->setFloat("pointLight[1].quadratic", 0.032f);
         // point light 3
-        ourShader->setVec3("pointLight[2].position", pointLightPositions[0]);
+        ourShader->setVec3("pointLight[2].position", pointLightPositions[2]);
         ourShader->setVec3("pointLight[2].ambient", ambient);
         ourShader->setVec3("pointLight[2].diffuse", diffuse);
         ourShader->setVec3("pointLight[2].specular", specular);
@@ -328,7 +276,7 @@ public:
         ourShader->setFloat("pointLight[2].linear", 0.09f);
         ourShader->setFloat("pointLight[2].quadratic", 0.032f);
         // point light 4
-        ourShader->setVec3("pointLight[3].position", pointLightPositions[0]);
+        ourShader->setVec3("pointLight[3].position", pointLightPositions[3]);
         ourShader->setVec3("pointLight[3].ambient", ambient);
         ourShader->setVec3("pointLight[3].diffuse", diffuse);
         ourShader->setVec3("pointLight[3].specular", specular);
@@ -353,11 +301,6 @@ public:
 
     //     for (int i = 0; i < pointLights.size(); i++) {
     // ourShader->setVec3("pointLight[" + std::to_string(i) + "].position", pointLightPositions[i]);
-    }
-
-
-    void createPointLights() {
-
     }
 
     void processInput(GLFWwindow *window) {

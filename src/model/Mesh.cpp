@@ -18,20 +18,24 @@ public:
 
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
-    std::vector<Texture> textures;
     unsigned int VAO;
 
-    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) {
+    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices) {
         this->vertices = vertices;
         this->indices = indices;
-        this->textures = textures;
 
         setupVAO();
     }
 
     void draw() {
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
+        unsigned int indicesSize = static_cast<unsigned int>(indices.size());
+        unsigned int verticesSize = static_cast<unsigned int>(vertices.size());
+        if(indicesSize == 0) {
+            glDrawArrays(GL_TRIANGLES, 0, verticesSize);
+        } else {
+            glDrawElements(GL_TRIANGLES, indicesSize, GL_UNSIGNED_INT, 0);
+        }
         glBindVertexArray(0);
     }
 
