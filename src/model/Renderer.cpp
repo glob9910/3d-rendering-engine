@@ -2,12 +2,16 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <stdio.h>
 #include <vector>
 #include <utility>
 #include "Model.cpp"
 #include "Light.cpp"
+#include "DirLight.cpp"
+#include "PointLight.cpp"
 #include "Shader.cpp"
 #include "Camera.cpp"
+#include "Material.cpp"
 
 class Renderer {
 private:
@@ -32,28 +36,64 @@ public:
         for(auto obj : *toRender) {
             Shader* shader = obj->first;
             shader->use();
+
+            int countPointLights = 0;
+            for(Light* l : *lights) {
+                glm::vec3 ambient = l->getAmbient();
+                glm::vec3 diffuse = l->getDiffuse();
+                glm::vec3 specular = l->getSpecular();
+                switch(l->getType()) {
+                    case LIGHT::DIR:
+                        glm::vec3 direction;
+                        direction = ((DirLight*) l)->getDirection();
+                        shader->setVec3("dirLight.direction", direction);
+                        shader->setVec3("dirLight.ambient", ambient);
+                        shader->setVec3("dirLight.diffuse", diffuse);
+                        shader->setVec3("dirLight.specular", specular);
+                        break;
+                    case LIGHT::POINT:
+                        glm::vec3 position;
+                        position = ((PointLight*) l)->getPosition();
+                        float constant, linear, quadratic;
+                        constant = ((PointLight*) l)->getConstant();
+                        linear = ((PointLight*) l)->getLinear();
+                        quadratic =((PointLight*) l)->getQuadratic();
+                        shader->setVec3("pointLight[" + std::to_string(countPointLights) + "].ambient", ambient);
+                        shader->setVec3("pointLight[" + std::to_string(countPointLights) + "].diffuse", diffuse);
+                        shader->setVec3("pointLight[" + std::to_string(countPointLights) + "].specular", specular);
+                        shader->setVec3("pointLight[" + std::to_string(countPointLights) + "].position", position);
+                        shader->setFloat("pointLight[" + std::to_string(countPointLights) + "].constant", constant);
+                        shader->setFloat("pointLight[" + std::to_string(countPointLights) + "].linear", linear);
+                        shader->setFloat("pointLight[" + std::to_string(countPointLights) + "].quadratic", quadratic);
+                        countPointLights++;
+                    default:
+                        break;
+                }
+            }
+            shader->setInt("numOfPointLights", countPointLights);
+
             shader->setMat4("projection", projection);
             shader->setMat4("view", view);
+            shader->setInt("material.diffuse", 0);
+            shader->setInt("material.specular", 1);
             for(Model* model : *obj->second) {
                 glm::mat4 m = model->getModelMatrix();
                 shader->setMat4("model", m);
-                model->draw();
+                
+                Material* material = model->getMaterial();
+                shader->setFloat("material.shininess", material->getShinines());
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, material->getDiffuse()->ID);
+                if(material->hasSpecular()) {
+                    glActiveTexture(GL_TEXTURE1);
+                    glBindTexture(GL_TEXTURE_2D, material->getSpecular()->ID);
+                }
+
+                std::vector<Mesh> meshes = model->getMeshes();
+                for(unsigned int i = 0; i < meshes.size(); i++) {
+                    meshes[i].draw();
+                }
             }
         }
-
-
-        // lamps
-        // lightningShader->use();
-        // lightningShader->setMat4("projection", projection);
-        // lightningShader->setMat4("view", view);
-        // glBindVertexArray(lightVAO);
-        // for(unsigned int i = 0; i < 4; i++) {
-        //     glm::mat4 model = glm::mat4(1.0f);
-        //     model = glm::translate(model, pointLightPositions[i]);
-        //     //model = glm::scale(glm::vec3(0.5f, 0.5f, 0.5f));
-            
-        //     lightningShader->setMat4("model", model);
-        //     glDrawArrays(GL_TRIANGLES, 0, 36);
-        // }
     }
 };

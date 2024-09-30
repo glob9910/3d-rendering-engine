@@ -4,30 +4,43 @@
 #include <glad/glad.h>
 #include <vector>
 
-class Light {
-public:
-
-    static unsigned int VAO;
-
-
-    static unsigned int setVAO() {
-        // // VAO
-        // glGenVertexArrays(1, &VAO);
-        // glBindVertexArray(VAO);
-
-        // // VBO
-        // unsigned int VBO;
-        // glGenBuffers(1, &VBO);
-        // glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        // glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-        // // Vertex attributes structure in VBO
-        // // position attribute
-        // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-        // glEnableVertexAttribArray(0);
-        
-        return VAO;
-    }
+enum LIGHT {
+    BASIC,
+    DIR,
+    POINT
 };
 
-unsigned int Light::VAO = 0;
+class Light {
+public:
+    glm::vec3 ambient;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
+
+    void setAmbient(glm::vec3 ambient) {
+        this->ambient = ambient;
+    }
+
+    void setDiffuse(glm::vec3 diffuse) {
+        this->diffuse = diffuse;
+    }
+
+    void setSpecular(glm::vec3 specular) {
+        this->specular = specular;
+    }
+
+    glm::vec3 getAmbient() {
+        return ambient;
+    }
+
+    glm::vec3 getDiffuse() {
+        return diffuse;
+    }
+
+    glm::vec3 getSpecular() {
+        return specular;
+    }
+
+    virtual LIGHT getType() {
+        return LIGHT::BASIC;
+    }
+};

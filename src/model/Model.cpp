@@ -4,11 +4,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Mesh.cpp"
+#include "Material.cpp"
 
 class Model {
 
 public:
-    Texture* texture;
+    Material* material;
     std::vector<Mesh> meshes;
     glm::vec3 position;
     glm::vec3 scale;
@@ -20,16 +21,16 @@ public:
         this->rotation = glm::vec3(0.0f);
     }
 
-    void draw() {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture->ID);
-        for(unsigned int i = 0; i < meshes.size(); i++) {
-            meshes[i].draw();
-        }
+    Material* getMaterial() {
+        return material;
+    }
+
+    std::vector<Mesh> getMeshes() {
+        return meshes;
     }
     
-    void setTexture(Texture* texture) {
-        this->texture = texture;
+    void setMaterial(Material* material) {
+        this->material = material;
     }
 
     void setPosition(glm::vec3 position) {

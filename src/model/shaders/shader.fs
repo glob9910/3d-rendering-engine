@@ -31,7 +31,7 @@ struct PointLight {
     vec3 diffuse;
     vec3 specular;
 };
-#define NR_POINT_LIGHTS 4
+#define NR_POINT_LIGHTS 256
 
 struct SpotLight {
     vec3 position;
@@ -52,12 +52,7 @@ uniform Material material;
 uniform DirLight dirLight;
 uniform SpotLight spotLight;
 uniform PointLight pointLight[NR_POINT_LIGHTS];
-
-uniform sampler2D texture_diffuse1;
-uniform sampler2D texture_diffuse2;
-uniform sampler2D texture_diffuse3;
-uniform sampler2D texture_specular1;
-uniform sampler2D texture_specular2;
+uniform int numOfPointLights;
 
 uniform vec3 viewPos;
 
@@ -75,11 +70,11 @@ void main()
     // directional lightning
     vec3 result = CalcDirLight(dirLight, norm, viewDir);
     // point lights
-    for(int i=0; i<NR_POINT_LIGHTS; i++) {
+    for(int i=0; i < numOfPointLights; i++) {
         result += CalcPointLight(pointLight[i], norm, FragPos, viewDir);
     }
     // spot light
-    result += CalcSpotLight(spotLight, norm, FragPos, viewDir);
+    // result += CalcSpotLight(spotLight, norm, FragPos, viewDir);
 
     FragColor = vec4(result, 1.0);    
 }
