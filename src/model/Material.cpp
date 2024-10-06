@@ -27,7 +27,11 @@ public:
         return specular;
     }
 
-    float getShinines() {
+    float getShininess() {
         return shininess;
+    }
+
+    void setShininess(float shininess) {
+        this->shininess = shininess;
     }
 };

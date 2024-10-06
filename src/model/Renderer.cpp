@@ -81,7 +81,7 @@ public:
                 shader->setMat4("model", m);
                 
                 Material* material = model->getMaterial();
-                shader->setFloat("material.shininess", material->getShinines());
+                shader->setFloat("material.shininess", material->getShininess());
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, material->getDiffuse()->ID);
                 if(material->hasSpecular()) {

@@ -2,15 +2,21 @@
 
 #include "glm/glm.hpp"
 #include "Light.cpp"
+#include "Model.cpp"
 
 class PointLight : public Light {
 public:
     glm::vec3 position;
+    Model* model;
 
     float constant;
     float linear;
     float quadratic;
     
+    void setModel(Model* model) {
+        this->model = model;
+    }
+
     void setPosition(glm::vec3 position) {
         this->position = position;
     }
@@ -43,7 +49,15 @@ public:
         return quadratic;
     }
 
+    Model* getModel() {
+        return this->model;
+    }
+
     LIGHT getType() {
         return LIGHT::POINT;
+    }
+
+    void scaleModel(glm::vec3 scaleVector) {
+        model->setScale(scaleVector);
     }
 };

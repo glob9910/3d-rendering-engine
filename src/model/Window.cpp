@@ -76,25 +76,51 @@ public:
 
         Renderer* renderer = new Renderer(SCR_WIDTH, SCR_HEIGHT);
 
-        // Model* backpack = new LoadedModel("src/model/assets/backpack/backpack.obj", new Texture("src/model/assets/backpack/diffuse.jpg", false));
-        // Model* bird = new LoadedModel("src/model/assets/bird/bird.obj", new Texture("src/model/assets/bird/diffuse.jpg", false));
-        // Model* knight = new LoadedModel("src/model/assets/knight/knight2.obj", new Texture("src/model/assets/knight/armor.jpg", false));
-        // Model* penguin = new LoadedModel("src/model/assets/penguin/penguin.obj", new Texture("src/model/assets/penguin/PenguinDiffuseColor.png", true));
 
-        // backpack->setPosition(glm::vec3(6, 0, 0));
-        // bird->setPosition(glm::vec3(15, 0, 0));
-        // knight->setPosition(glm::vec3(-8, 0 ,0));
-        // penguin->setPosition(glm::vec3(-1, 0, 0));
+        // lights
+        std::vector<Light*>* lights = new std::vector<Light*>();
+
+        DirLight* dirLight = new DirLight();
+        dirLight->setAmbient(glm::vec3(0.2f, 0.2f, 0.2f));
+        dirLight->setDiffuse(glm::vec3(0.5f, 0.5f, 0.5f));
+        dirLight->setSpecular(glm::vec3(1.0f, 1.0f, 1.0f));
+        dirLight->setDirection(glm::vec3(0.0f, -1.0f, 0.0f));
+        //lights->push_back(dirLight);
+    
+        std::vector<PointLight*>* pointLights = new std::vector<PointLight*>();
+        pointLights->push_back(createPointLight(glm::vec3(0.0f, 0.0f, 0.0f)));
+        pointLights->push_back(createPointLight(glm::vec3(1.0f, 1.0f, 1.0f)));
+
+        std::vector<Model*>* modelsForLightShader = new std::vector<Model*>();
+        for(PointLight* pointLight : *pointLights) {
+            modelsForLightShader->push_back(pointLight->getModel());
+            lights->push_back(createPointLight(glm::vec3(0.0f, 0.0f, 0.0f)));
+        }
+        std::pair<Shader*, std::vector<Model*>*>* lightShaderModels = new std::pair<Shader*, std::vector<Model*>*>(lightningShader, modelsForLightShader);
+
+        //models
+        Model* backpack = new LoadedModel("src/model/assets/backpack/backpack.obj", new Texture("src/model/assets/backpack/diffuse.jpg", false));
+        Model* bird = new LoadedModel("src/model/assets/bird/bird.obj", new Texture("src/model/assets/bird/diffuse.jpg", false));
+        Model* knight = new LoadedModel("src/model/assets/knight/knight2.obj", new Texture("src/model/assets/knight/armor.jpg", false));
+        Model* penguin = new LoadedModel("src/model/assets/penguin/penguin.obj", new Texture("src/model/assets/penguin/PenguinDiffuseColor.png", true));
+
+        backpack->setPosition(glm::vec3(6, 0, 0));
+        bird->setPosition(glm::vec3(15, 0, 0));
+        knight->setPosition(glm::vec3(-8, 0 ,0));
+        penguin->setPosition(glm::vec3(-1, 0, 0));
 
         std::vector<Model*>* modelsForModelShader = new std::vector<Model*>();
-        // modelsForModelShader->push_back(backpack);
-        // modelsForModelShader->push_back(bird);
-        // modelsForModelShader->push_back(knight);
-        // modelsForModelShader->push_back(penguin);
-        std::pair<Shader*, std::vector<Model*>*>* modelShaderModels = new std::pair<Shader*, std::vector<Model*>*>(modelShader, modelsForModelShader);
+        modelsForModelShader->push_back(backpack);
+        modelsForModelShader->push_back(bird);
+        modelsForModelShader->push_back(knight);
+        modelsForModelShader->push_back(penguin);
+        // for(Model* model: *modelsForModelShader) {
+        //     model->getMaterial()->setShininess(1.0f);
+        // }
+        std::pair<Shader*, std::vector<Model*>*>* modelShaderModels = new std::pair<Shader*, std::vector<Model*>*>(ourShader, modelsForModelShader);
 
+        // boxes
         std::vector<Model*>* modelsForOurShader = new std::vector<Model*>();
-        modelsForOurShader->push_back(createBox(glm::vec3( 0.0f,  0.0f,  0.0f)));
         modelsForOurShader->push_back(createBox(glm::vec3( 2.0f,  5.0f, -15.0f)));
         modelsForOurShader->push_back(createBox(glm::vec3(-1.5f, -2.2f, -2.5f)));
         modelsForOurShader->push_back(createBox(glm::vec3(-3.8f, -2.0f, -12.3f)));
@@ -105,28 +131,12 @@ public:
         modelsForOurShader->push_back(createBox(glm::vec3( 1.5f,  0.2f, -1.5f)));
         std::pair<Shader*, std::vector<Model*>*>* ourShaderModels = new std::pair<Shader*, std::vector<Model*>*>(ourShader, modelsForOurShader);
 
-        
         std::vector<std::pair<Shader*, std::vector<Model*>*>*>* toRender = new std::vector<std::pair<Shader*, std::vector<Model*>*>*>();
+        toRender->push_back(lightShaderModels);
         toRender->push_back(ourShaderModels);
         toRender->push_back(modelShaderModels);
 
-        DirLight* dirLight = new DirLight();
-        dirLight->setAmbient(glm::vec3(0.2f, 0.2f, 0.2f));
-        dirLight->setDiffuse(glm::vec3(0.5f, 0.5f, 0.5f));
-        dirLight->setSpecular(glm::vec3(1.0f, 1.0f, 1.0f));
-        dirLight->setDirection(glm::vec3(0.0f, -1.0f, 0.0f));
-        PointLight* pointLight = new PointLight();
-        pointLight->setAmbient(glm::vec3(0.1f, 0.1f, 0.1f));
-        pointLight->setDiffuse(glm::vec3(0.8f, 0.8f, 0.8f));
-        pointLight->setSpecular(glm::vec3(1.0f, 1.0f, 1.0f));
-        pointLight->setConstant(1.0f);
-        pointLight->setLinear(0.09f);
-        pointLight->setQuadratic(0.032f);
-        pointLight->setPosition(glm::vec3(0, 0, 0));
-        std::vector<Light*>* lights = new std::vector<Light*>();
-        lights->push_back(dirLight);
-        lights->push_back(pointLight);
-        
+
         while(!glfwWindowShouldClose(window)) {
             processInput(window);
             renderer->render(toRender, lights, camera);
@@ -148,140 +158,20 @@ public:
         return box;
     }
 
-    void createLights() {
-
-       // lightningShader -> use();
-
-        // set VAO
-        // lightVAO = Light::setVAO();
-
-        // set shader
-        //Light::setShader(ourShader);
-
-        // ourShader->use();
-
-    // // material
-    // ourShader->setInt("material.diffuse", 0); // 0 - tekstura diffuse
-    // ourShader->setInt("material.specular", 1); // 1 - tekstura specular
-    // ourShader->setFloat("material.shininess", 32.0f);
-
-    // // DirLight
-    // ourShader->setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-    // ourShader->setVec3("dirLight.ambient", 0.2f, 0.2f, 0.2f);
-    // ourShader->setVec3("dirLight.diffuse", 0.5f, 0.5f, 0.5f);
-    // ourShader->setVec3("dirLight.specular", 1.0f, 1.0f, 1.0f);
-
-    // // point light
-    // for (int i = 0; i < 4; i++) {
-    //     ourShader->setVec3("pointLight[i].position", pointLightPositions[i]);
-    //     ourShader->setVec3("pointLight[i].ambient", 0.1f, 0.1f, 0.1f);
-    //     ourShader->setVec3("pointLight[i].diffuse", 0.8f, 0.8f, 0.8f);
-    //     ourShader->setVec3("pointLight[i].specular", 1.0f, 1.0f, 1.0f);
-    //     ourShader->setFloat("pointLight[i].constant", 1.0f);
-    //     ourShader->setFloat("pointLight[i].linear", 0.09f);
-    //     ourShader->setFloat("pointLight[i].quadratic", 0.032f);
-    // }
-
-    // // SpotLight
-    // ourShader->setVec3("spotLight.position", camera->position);
-    // ourShader->setVec3("spotLight.direction", camera->front);
-    // ourShader->setFloat("spotLight.cutOff", cos(glm::radians(12.5f)));
-    // ourShader->setFloat("spotLight.outerCutOff", cos(glm::radians(15.0f)));
-    // ourShader->setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
-    // ourShader->setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
-    // ourShader->setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
-    // ourShader->setFloat("spotLight.constant", 1.0f);
-    // ourShader->setFloat("spotLight.linear", 0.09f);
-    // ourShader->setFloat("spotLight.quadratic", 0.032f);
-
-
-
-        // ourShader->use();
-
-        // // 
-        // glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f); // Białe światło
-        // glm::vec3 ambient = glm::vec3(0.2f, 0.2f, 0.2f);
-        // glm::vec3 diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-        // glm::vec3 specular = glm::vec3(1.0f, 1.0f, 1.0f);
-
-        // // 
-        // for(int i = 0; i < 4; i++) {
-        //     ourShader->setVec3("pointLight[" + std::to_string(i) + "].position", pointLightPositions[i]);
-        //     ourShader->setVec3("pointLight[" + std::to_string(i) + "].ambient", ambient);
-        //     ourShader->setVec3("pointLight[" + std::to_string(i) + "].diffuse", diffuse);
-        //     ourShader->setVec3("pointLight[" + std::to_string(i) + "].specular", specular);
-        //     ourShader->setFloat("pointLight[" + std::to_string(i) + "].constant", 1.0f);
-        //     ourShader->setFloat("pointLight[" + std::to_string(i) + "].linear", 0.09f);
-        //     ourShader->setFloat("pointLight[" + std::to_string(i) + "].quadratic", 0.032f);
-        // }
-        
-    
-
-
-
-        // set light
-        glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-        glm::vec3 lightDirection = glm::vec3(0.0f, -1.0f, 0.0f);
-        glm::vec3 ambient = glm::vec3(0.2f, 0.2f, 0.2f);
-        glm::vec3 diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-        glm::vec3 specular = glm::vec3(1.0f, 1.0f, 1.0f);
-        //ourShader->use();
-        // ourShader->setVec3("dirLight.direction", lightDirection);
-        // ourShader->setVec3("dirLight.ambient", ambient);
-        // ourShader->setVec3("dirLight.diffuse", diffuse);
-        // ourShader->setVec3("dirLight.specular", specular);
-        
-        // point light 1
-        // ourShader->setVec3("pointLight[0].position", pointLightPositions[0]);
-        // ourShader->setVec3("pointLight[0].ambient", ambient);
-        // ourShader->setVec3("pointLight[0].diffuse", diffuse);
-        // ourShader->setVec3("pointLight[0].specular", specular);
-        // ourShader->setFloat("pointLight[0].constant", 1.0f);
-        // ourShader->setFloat("pointLight[0].linear", 0.09f);
-        // ourShader->setFloat("pointLight[0].quadratic", 0.032f);
-        // // point light 2
-        // ourShader->setVec3("pointLight[1].position", pointLightPositions[1]);
-        // ourShader->setVec3("pointLight[1].ambient", ambient);
-        // ourShader->setVec3("pointLight[1].diffuse", diffuse);
-        // ourShader->setVec3("pointLight[1].specular", specular);
-        // ourShader->setFloat("pointLight[1].constant", 1.0f);
-        // ourShader->setFloat("pointLight[1].linear", 0.09f);
-        // ourShader->setFloat("pointLight[1].quadratic", 0.032f);
-        // // point light 3
-        // ourShader->setVec3("pointLight[2].position", pointLightPositions[2]);
-        // ourShader->setVec3("pointLight[2].ambient", ambient);
-        // ourShader->setVec3("pointLight[2].diffuse", diffuse);
-        // ourShader->setVec3("pointLight[2].specular", specular);
-        // ourShader->setFloat("pointLight[2].constant", 1.0f);
-        // ourShader->setFloat("pointLight[2].linear", 0.09f);
-        // ourShader->setFloat("pointLight[2].quadratic", 0.032f);
-        // // point light 4
-        // ourShader->setVec3("pointLight[3].position", pointLightPositions[3]);
-        // ourShader->setVec3("pointLight[3].ambient", ambient);
-        // ourShader->setVec3("pointLight[3].diffuse", diffuse);
-        // ourShader->setVec3("pointLight[3].specular", specular);
-        // ourShader->setFloat("pointLight[3].constant", 1.0f);
-        // ourShader->setFloat("pointLight[3].linear", 0.09f);
-        // ourShader->setFloat("pointLight[3].quadratic", 0.032f);
-        // // spotLight
-        // ourShader->setVec3("spotLight.position", camera->position);
-        // ourShader->setVec3("spotLight.direction", camera->up);
-        // ambient = glm::vec3(0.0f, 0.0f, 0.0f);
-        // diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-        // specular = glm::vec3(1.0f, 1.0f, 1.0f);
-        // ourShader->setVec3("spotLight.ambient", ambient);
-        // ourShader->setVec3("spotLight.diffuse", diffuse);
-        // ourShader->setVec3("spotLight.specular", specular);
-        // ourShader->setFloat("spotLight.constant", 1.0f);
-        // ourShader->setFloat("spotLight.linear", 0.09f);
-        // ourShader->setFloat("spotLight.quadratic", 0.032f);
-        // ourShader->setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-        // ourShader->setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));     
-
-
-    //     for (int i = 0; i < pointLights.size(); i++) {
-    // ourShader->setVec3("pointLight[" + std::to_string(i) + "].position", pointLightPositions[i]);
+    PointLight* createPointLight(glm::vec3 position) {
+        PointLight* pointLight = new PointLight();
+        pointLight->setPosition(position);
+        pointLight->setModel(createBox(pointLight->getPosition()));
+        pointLight->scaleModel(glm::vec3(0.5f, 0.5f, 0.5f));
+        pointLight->setAmbient(glm::vec3(0.1f, 0.1f, 0.1f));
+        pointLight->setDiffuse(glm::vec3(0.8f, 0.8f, 0.8f));
+        pointLight->setSpecular(glm::vec3(1.0f, 1.0f, 1.0f));
+        pointLight->setConstant(1.0f);
+        pointLight->setLinear(0.09f);
+        pointLight->setQuadratic(0.032f);   
+        return pointLight;    
     }
+
 
     void processInput(GLFWwindow *window) {
         const float cameraSpeed = 0.05f;

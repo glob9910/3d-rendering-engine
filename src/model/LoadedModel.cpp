@@ -16,7 +16,7 @@ public:
         this->scale = glm::vec3(1.0f);
         this->rotation = glm::vec3(0.0f);
         meshes.push_back(loader.load(objPath));
-        this->setMaterial(new Material(texture, nullptr, 0));
+        this->setMaterial(new Material(texture, nullptr, 1));
     }
 };
 
