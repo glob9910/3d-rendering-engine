@@ -7,10 +7,6 @@
 #include "Mesh.cpp"
 
 
-/// to z chatgpt vvvv
-
-
-
 class ModelLoader {
 public:
 

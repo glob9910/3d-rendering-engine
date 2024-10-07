@@ -1,12 +1,12 @@
 #include <vector>
 
-#include "Model.cpp"
-#include "Light.cpp"
-#include "DirLight.cpp"
-#include "PointLight.cpp"
-#include "Box.cpp"
+#include "models/Model.cpp"
+#include "lights/Light.cpp"
+#include "lights/DirLight.cpp"
+#include "lights/PointLight.cpp"
+#include "models/Box.cpp"
 #include "Shader.cpp"
-#include "LoadedModel.cpp"
+#include "models/LoadedModel.cpp"
 #include "Renderer.cpp"
 #include "Camera.cpp"
 
@@ -55,6 +55,8 @@ public:
     void render(Camera* camera) {
         renderer->render(toRender, lights, camera);
     }
+
+protected:
 
     void createDirLight() {
         DirLight* dirLight = new DirLight();

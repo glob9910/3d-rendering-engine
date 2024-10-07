@@ -5,8 +5,9 @@
 #include <glad/glad.h> 
 #include <string>
 #include <stb_image.h>
-#include "Shader.cpp"
 #include <glm/glm.hpp>
+
+#include "../Shader.cpp"
 
 
 

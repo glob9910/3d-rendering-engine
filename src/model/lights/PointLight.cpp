@@ -1,8 +1,9 @@
 #pragma once
 
 #include "glm/glm.hpp"
+
 #include "Light.cpp"
-#include "Model.cpp"
+#include "../models/Model.cpp"
 
 class PointLight : public Light {
 public:

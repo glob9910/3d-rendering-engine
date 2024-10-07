@@ -5,13 +5,14 @@
 #include <stdio.h>
 #include <vector>
 #include <utility>
-#include "Model.cpp"
-#include "Light.cpp"
-#include "DirLight.cpp"
-#include "PointLight.cpp"
+
+#include "models/Model.cpp"
+#include "lights/Light.cpp"
+#include "lights/DirLight.cpp"
+#include "lights/PointLight.cpp"
 #include "Shader.cpp"
 #include "Camera.cpp"
-#include "Material.cpp"
+#include "models/Material.cpp"
 
 class Renderer {
 private:

@@ -2,9 +2,11 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "Texture.cpp"
-#include "Shader.cpp"
+
 #include <vector>
+
+#include "Texture.cpp"
+#include "../Shader.cpp"
 #include "Model.cpp"
 
 class Box : public Model {
