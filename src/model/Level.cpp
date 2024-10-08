@@ -36,7 +36,7 @@ public:
         modelsForOurShader = new std::vector<Model*>();
         modelsForModelShader = new std::vector<Model*>();
 
-        createDirLight();
+        //createDirLight();
         createPointLights();
         createModels();
         createBoxes();
@@ -63,7 +63,7 @@ protected:
         dirLight->setAmbient(glm::vec3(0.2f, 0.2f, 0.2f));
         dirLight->setDiffuse(glm::vec3(0.5f, 0.5f, 0.5f));
         dirLight->setSpecular(glm::vec3(1.0f, 1.0f, 1.0f));
-        dirLight->setDirection(glm::vec3(0.0f, -1.0f, 0.0f));
+        dirLight->setDirection(glm::vec3(0.0f, -1000.0f, 0.0f));
         lights->push_back(dirLight);
     }
 
@@ -83,7 +83,7 @@ protected:
         pointLight->setPosition(position);
         pointLight->setModel(createBox(pointLight->getPosition()));
         pointLight->scaleModel(glm::vec3(0.5f, 0.5f, 0.5f));
-        pointLight->setAmbient(glm::vec3(0.1f, 0.1f, 0.1f));
+        pointLight->setAmbient(glm::vec3(0.0f, 0.0f, 0.0f));
         pointLight->setDiffuse(glm::vec3(0.8f, 0.8f, 0.8f));
         pointLight->setSpecular(glm::vec3(1.0f, 1.0f, 1.0f));
         pointLight->setConstant(1.0f);
@@ -104,17 +104,17 @@ protected:
     }
 
     void createModels() {
-        Model* backpack = new LoadedModel("src/model/assets/backpack/backpack.obj", new Texture("src/model/assets/backpack/diffuse.jpg", false));
+        //Model* backpack = new LoadedModel("src/model/assets/backpack/backpack.obj", new Texture("src/model/assets/backpack/diffuse.jpg", false));
         Model* bird = new LoadedModel("src/model/assets/bird/bird.obj", new Texture("src/model/assets/bird/diffuse.jpg", false));
         Model* knight = new LoadedModel("src/model/assets/knight/knight2.obj", new Texture("src/model/assets/knight/armor.jpg", false));
         Model* penguin = new LoadedModel("src/model/assets/penguin/penguin.obj", new Texture("src/model/assets/penguin/PenguinDiffuseColor.png", true));
 
-        backpack->setPosition(glm::vec3(6, 0, 0));
+        //backpack->setPosition(glm::vec3(6, 0, 0));
         bird->setPosition(glm::vec3(15, 0, 0));
         knight->setPosition(glm::vec3(-8, 0 ,0));
         penguin->setPosition(glm::vec3(-1, 0, 0));
 
-        modelsForModelShader->push_back(backpack);
+        //modelsForModelShader->push_back(backpack);
         modelsForModelShader->push_back(bird);
         modelsForModelShader->push_back(knight);
         modelsForModelShader->push_back(penguin);

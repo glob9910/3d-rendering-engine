@@ -94,6 +94,11 @@ public:
                 for(unsigned int i = 0; i < meshes.size(); i++) {
                     meshes[i].draw();
                 }
+
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, 0);
+                glActiveTexture(GL_TEXTURE1);
+                glBindTexture(GL_TEXTURE_2D, 0);
             }
         }
     }

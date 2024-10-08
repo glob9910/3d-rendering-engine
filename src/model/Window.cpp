@@ -24,13 +24,7 @@ public:
     bool firstMouse = true;
 
     Camera* camera;
-
-    glm::vec3 pointLightPositions[4] {
-        glm::vec3( 2.3f, -1.0f, -3.5f),  
-        glm::vec3( 1.5f,  -1.0f, 2.5f), 
-        glm::vec3( 0.5f,  0.2f, -0.5f), 
-        glm::vec3(-4.3f,  4.0f, -1.5f)
-    };
+    
 
     Window(GLFWwindow* window) {
         if(window == NULL) {
