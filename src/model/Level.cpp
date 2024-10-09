@@ -11,7 +11,7 @@
 #include "Camera.cpp"
 
 class Level {
-public:
+protected:
     std::vector<Light*>* lights;
 
     std::vector<Model*>* modelsForLightShader;
@@ -27,7 +27,7 @@ public:
 
     Renderer* renderer;
 
-
+public:
     Level(int SCR_WIDTH, int SCR_HEIGHT, GLFWwindow *window) {
         this->window = window;
         ourShader = new Shader("src/model/shaders/shader.vs", "src/model/shaders/shader.fs");
@@ -39,7 +39,7 @@ public:
         modelsForOurShader = new std::vector<Model*>();
         modelsForModelShader = new std::vector<Model*>();
 
-        createDirLight();
+        //createDirLight();
         createPointLights();
         createModels();
         createBoxes();
@@ -73,7 +73,7 @@ protected:
 
     void createPointLights() {
         std::vector<PointLight*>* pointLights = new std::vector<PointLight*>();
-       // pointLights->push_back(createPointLight(glm::vec3(0.0f, 0.0f, 0.0f)));
+        pointLights->push_back(createPointLight(glm::vec3(0.0f, 0.0f, 0.0f)));
         pointLights->push_back(createPointLight(glm::vec3(1.0f, 1.0f, 1.0f)));
 
         for(PointLight* pointLight : *pointLights) {

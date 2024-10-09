@@ -48,9 +48,10 @@ public:
     glm::mat4 getModelMatrix() {
         glm::mat4 model = glm::mat4(1.0f);
         //model = glm::rotate(model, this->rotation);
-        //model = glm::scale(model, this->scale);
+        model = glm::translate(model, position);
+        model = glm::scale(model, this->scale);
 
-        return glm::translate(model, position);
+        return model;
     }
 };
 
