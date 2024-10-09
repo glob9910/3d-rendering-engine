@@ -56,6 +56,10 @@ public:
     }
 
     void render(Camera* camera) {
+        // pinguin rotation
+        modelsForModelShader->at(2)->rotationAngle = (float)glfwGetTime();
+        modelsForModelShader->at(2)->rotation = glm::vec3(0.0f, 1.0f, 0.0f);
+
         processAction(window);
         renderer->render(toRender, lights, camera);
     }
