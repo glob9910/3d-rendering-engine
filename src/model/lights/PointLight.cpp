@@ -57,8 +57,4 @@ public:
     LIGHT getType() {
         return LIGHT::POINT;
     }
-
-    void scaleModel(glm::vec3 scaleVector) {
-        model->setScale(scaleVector);
-    }
 };

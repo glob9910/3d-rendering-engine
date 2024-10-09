@@ -39,7 +39,7 @@ public:
         modelsForOurShader = new std::vector<Model*>();
         modelsForModelShader = new std::vector<Model*>();
 
-        //createDirLight();
+        createDirLight();
         createPointLights();
         createModels();
         createBoxes();
@@ -73,7 +73,7 @@ protected:
 
     void createPointLights() {
         std::vector<PointLight*>* pointLights = new std::vector<PointLight*>();
-        pointLights->push_back(createPointLight(glm::vec3(0.0f, 0.0f, 0.0f)));
+       // pointLights->push_back(createPointLight(glm::vec3(0.0f, 0.0f, 0.0f)));
         pointLights->push_back(createPointLight(glm::vec3(1.0f, 1.0f, 1.0f)));
 
         for(PointLight* pointLight : *pointLights) {
@@ -86,7 +86,7 @@ protected:
         PointLight* pointLight = new PointLight();
         pointLight->setPosition(position);
         pointLight->setModel(createBox(pointLight->getPosition()));
-        pointLight->scaleModel(glm::vec3(0.5f, 0.5f, 0.5f));
+        pointLight->model->setScale(glm::vec3(0.5f, 0.5f, 0.5f));
         pointLight->setAmbient(glm::vec3(0.0f, 0.0f, 0.0f));
         pointLight->setDiffuse(glm::vec3(0.8f, 0.8f, 0.8f));
         pointLight->setSpecular(glm::vec3(1.0f, 1.0f, 1.0f));
@@ -114,9 +114,9 @@ protected:
         Model* penguin = new LoadedModel("src/model/assets/penguin/penguin.obj", new Texture("src/model/assets/penguin/PenguinDiffuseColor.png", true));
 
         //backpack->setPosition(glm::vec3(6, 0, 0));
-        bird->setPosition(glm::vec3(15, 0, 0));
-        knight->setPosition(glm::vec3(-8, 0 ,0));
-        penguin->setPosition(glm::vec3(-1, 0, 0));
+        bird->setPosition(glm::vec3(15.0f, 0.0f, 0.0f));
+        knight->setPosition(glm::vec3(-8.0f, 0.0f ,0.0f));
+        penguin->setPosition(glm::vec3(-1.0f, 0.0f, 0.0f));
 
         //modelsForModelShader->push_back(backpack);
         modelsForModelShader->push_back(bird);
@@ -138,7 +138,6 @@ protected:
     void processAction(GLFWwindow *window) {
         const float speed = 0.5f;
         PointLight* light = (PointLight*)lights->at(1);
-
 
         if(glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
             light->position.x -= speed;
