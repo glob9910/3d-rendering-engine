@@ -38,6 +38,7 @@ public:
     float movementSpeed;
     float mouseSensitivity;
     float zoom;
+    bool isCollision;
 
     // constructor with vectors
     Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : front(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(SPEED), mouseSensitivity(SENSITIVITY), zoom(ZOOM) {
@@ -46,6 +47,7 @@ public:
         this->yaw = yaw;
         this->pitch = pitch;
         updateCameraVectors();
+        isCollision = false;
     }
     // constructor with scalar values
     Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : front(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(SPEED), mouseSensitivity(SENSITIVITY), zoom(ZOOM) {
@@ -120,6 +122,6 @@ private:
         this->front = glm::normalize(front);
         // also re-calculate the Right and Up vector
         right = glm::normalize(glm::cross(this->front, worldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-        up    = glm::normalize(glm::cross(right, this->front));
+        up = glm::normalize(glm::cross(right, this->front));
     }
 };
