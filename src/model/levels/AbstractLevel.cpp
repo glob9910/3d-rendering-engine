@@ -15,14 +15,10 @@ class AbstractLevel{
 protected:
 
     std::vector<Light*>* lights;
-
-    std::vector<Model*>* modelsForLightShader;
-    std::vector<Model*>* modelsForModelShader;
     std::vector<std::pair<Shader*, std::vector<Model*>*>*>* toRender;
+    std::vector<Model*>* collisableModels;
 
-    Shader* skyboxShader;
-    Shader* lightShader;
-    Shader* modelShader;
+    Skybox* skybox = nullptr;
 
     GLFWwindow *window;
 
@@ -45,7 +41,11 @@ public:
         glfwSetCursorPos(window, lastX, lastY);
         glfwSetWindowUserPointer(window, this);
 
-        camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));        
+        camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+
+        lights = new std::vector<Light*>;    
+        toRender = new std::vector<std::pair<Shader*, std::vector<Model*>*>*>;
+        collisableModels = new std::vector<Model*>;
     }
 
     void render() {}
@@ -79,7 +79,7 @@ public:
             camera->processMouseScroll(false);
 
         if(detectCollisions) {
-            for(Model* model : *modelsForModelShader) {
+            for(Model* model : *collisableModels) {
                 camera->isCollision = detectCameraCollision(model);
                 if(camera->isCollision) {
                     camera->position = lastPosition;
@@ -87,6 +87,18 @@ public:
                 }
             }
         }
+    }
+
+    std::vector<Light*>* getLights() {
+        return lights;
+    }
+
+    std::vector<std::pair<Shader*, std::vector<Model*>*>*>* getModels() {
+        return toRender;
+    }
+    
+    Skybox* getSkybox() {
+        return skybox;
     }
 
 protected:
