@@ -13,11 +13,14 @@
 #include "Shader.cpp"
 #include "Camera.cpp"
 #include "models/Material.cpp"
+#include "models/Skybox.cpp"
 
 class Renderer {
 private:
     float screenHeight;
     float screenWidth;
+    Skybox* skybox;
+    Shader* skyboxShader;
 
 public:
     Renderer(float screenWidth, float screenHeight) {
@@ -27,13 +30,37 @@ public:
 
     void render(std::vector<std::pair<Shader*, std::vector<Model*>*>*>* toRender, std::vector<Light*>* lights, Camera* camera) {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        glClear(GL_DEPTH_BUFFER_BIT);
+        // glClear(GL_COLOR_BUFFER_BIT);
+        // glClear(GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // projection/view matrices
         glm::mat4 projection = glm::perspective(glm::radians(camera->zoom), this->screenWidth / this->screenHeight, 0.1f, 100.0f);
         glm::mat4 view = camera->GetViewMatrix();
+
+if (skybox != nullptr) {
+            glDepthMask(GL_FALSE);
+            glDepthFunc(GL_LEQUAL);  // Pozwolenie na renderowanie Skyboxa w tle
+            skyboxShader->use();
+
+            glm::mat4 skyboxView = glm::mat4(glm::mat3(view));
+            skyboxShader->setMat4("view", skyboxView);
+            skyboxShader->setMat4("projection", projection);
         
+
+            glBindVertexArray(skybox->VAO);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->cubemapTexture);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+
+            glBindVertexArray(0);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+            glDepthFunc(GL_LESS);  // Przywrócenie domyślnej funkcji głębokości
+            glDepthMask(GL_TRUE);
+        }
+        
+
         for(auto obj : *toRender) {
             Shader* shader = obj->first;
             shader->use();
@@ -71,6 +98,7 @@ public:
                         break;
                 }
             }
+    
             shader->setInt("numOfPointLights", countPointLights);
 
             shader->setMat4("projection", projection);
@@ -101,5 +129,10 @@ public:
                 glBindTexture(GL_TEXTURE_2D, 0);
             }
         }
+    }
+
+    void setSkyBox(Shader* skyboxShader, Skybox* skybox) {
+        this->skybox = skybox;
+        this->skyboxShader = skyboxShader;
     }
 };

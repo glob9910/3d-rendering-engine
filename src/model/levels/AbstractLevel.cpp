@@ -20,7 +20,7 @@ protected:
     std::vector<Model*>* modelsForModelShader;
     std::vector<std::pair<Shader*, std::vector<Model*>*>*>* toRender;
 
-    Shader* ourShader;
+    Shader* skyboxShader;
     Shader* lightShader;
     Shader* modelShader;
 

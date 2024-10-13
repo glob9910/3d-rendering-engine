@@ -1,13 +1,16 @@
 #include "AbstractLevel.cpp"
 
 class Level : public AbstractLevel {
+private:
+
+    Skybox* skybox;
 
 public:
     Level(int SCR_WIDTH, int SCR_HEIGHT, GLFWwindow *window) : AbstractLevel(SCR_WIDTH, SCR_HEIGHT, window) {
 
-        ourShader = new Shader("src/model/shaders/shader.vs", "src/model/shaders/shader.fs");
+        modelShader = new Shader("src/model/shaders/shader.vs", "src/model/shaders/shader.fs");
         lightShader = new Shader("src/model/shaders/lightShader.vs", "src/model/shaders/lightShader.fs");
-        modelShader = new Shader("src/model/shaders/modelShader.vs", "src/model/shaders/modelShader.fs");
+        skyboxShader = new Shader("src/model/shaders/skyboxShader.vs", "src/model/shaders/skyboxShader.fs");
 
         lights = new std::vector<Light*>();
         modelsForLightShader = new std::vector<Model*>();
@@ -19,9 +22,11 @@ public:
         createBoxes();
 
         std::pair<Shader*, std::vector<Model*>*>* lightShaderModels = new std::pair<Shader*, std::vector<Model*>*>(lightShader, modelsForLightShader);
-        std::pair<Shader*, std::vector<Model*>*>* modelShaderModels = new std::pair<Shader*, std::vector<Model*>*>(ourShader, modelsForModelShader);
+        std::pair<Shader*, std::vector<Model*>*>* modelShaderModels = new std::pair<Shader*, std::vector<Model*>*>(modelShader, modelsForModelShader);
 
         renderer = new Renderer(SCR_WIDTH, SCR_HEIGHT);
+        skybox = new Skybox();
+        renderer->setSkyBox(skyboxShader, skybox);
         toRender = new std::vector<std::pair<Shader*, std::vector<Model*>*>*>();
         toRender->push_back(lightShaderModels);
         toRender->push_back(modelShaderModels);
