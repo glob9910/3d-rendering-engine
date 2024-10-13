@@ -6,7 +6,6 @@
 #include <string>
 #include "Texture.cpp"
 
-
 class Skybox {
 private:
     float vertices[108] = {

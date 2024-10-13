@@ -2,13 +2,13 @@
 
 #include "AbstractLevel.cpp"
 
-class Level : public AbstractLevel {
+class Level2 : public AbstractLevel {
 private:
     std::vector<Model*>* modelsForLightShader;
     std::vector<Model*>* modelsForModelShader;
 
 public:
-    Level(int SCR_WIDTH, int SCR_HEIGHT, GLFWwindow *window) : AbstractLevel(SCR_WIDTH, SCR_HEIGHT, window) {
+    Level2(int SCR_WIDTH, int SCR_HEIGHT, GLFWwindow *window) : AbstractLevel(SCR_WIDTH, SCR_HEIGHT, window) {
         Shader* modelShader = new Shader("src/model/shaders/shader.vs", "src/model/shaders/shader.fs");
         Shader* lightShader = new Shader("src/model/shaders/lightShader.vs", "src/model/shaders/lightShader.fs");
         Shader* skyboxShader = new Shader("src/model/shaders/skyboxShader.vs", "src/model/shaders/skyboxShader.fs");
@@ -17,11 +17,11 @@ public:
         modelsForLightShader = new std::vector<Model*>();
         modelsForModelShader = new std::vector<Model*>();
 
-        createDirLight();
+        //createDirLight();
         createPointLights();
         createModels();
-        createBoxes();
-        skybox = new Skybox("src/model/assets/skybox", skyboxShader);
+
+        skybox = new Skybox("src/model/assets/apocalypseSkybox", skyboxShader);
         collisableModels = modelsForModelShader;
 
         std::pair<Shader*, std::vector<Model*>*>* lightShaderModels = new std::pair<Shader*, std::vector<Model*>*>(lightShader, modelsForLightShader);
@@ -40,8 +40,8 @@ public:
         }
 
         // pinguin rotation
-        modelsForModelShader->at(2)->rotationAngle = (float)glfwGetTime();
-        modelsForModelShader->at(2)->rotation = glm::vec3(0.0f, 1.0f, 0.0f);
+        modelsForModelShader->at(1)->rotationAngle = (float)glfwGetTime();
+        modelsForModelShader->at(1)->rotation = glm::vec3(0.0f, 1.0f, 0.0f);
 
         // lightbox move
         const float speed = 0.5f;
@@ -109,6 +109,22 @@ private:
         return pointLight;    
     }
 
+    void createModels() {
+        Model* bird = new LoadedModel("src/model/assets/bird/bird_normalized.obj", new Texture("src/model/assets/bird/diffuse.jpg", false));
+        Model* penguin = new LoadedModel("src/model/assets/penguin/penguin.obj", new Texture("src/model/assets/penguin/PenguinDiffuseColor.png", true));
+        Model* gigaBird = new LoadedModel("src/model/assets/bird/bird_normalized.obj", new Texture("src/model/assets/bird/diffuse.jpg", false));
+
+        bird->setPosition(glm::vec3(5.0f, 0.0f, 0.0f));
+        bird->setScale(glm::vec3(5.0f, 5.0f, 5.0f));
+        penguin->setPosition(glm::vec3(-1.0f, 0.0f, 0.0f));
+        gigaBird->setPosition(glm::vec3(10.0f, 0.0f, 0.0f));
+        gigaBird->setScale(glm::vec3(20.0f, 20.0f, 20.0f));
+
+        modelsForModelShader->push_back(bird);
+        modelsForModelShader->push_back(penguin);
+        modelsForModelShader->push_back(gigaBird);
+    }
+
     Box* createBox(glm::vec3 position) {
         Box* box = new Box();
         box->setPosition(position);
@@ -118,33 +134,5 @@ private:
             32.0f
         ));
         return box;
-    }
-
-    void createModels() {
-        //Model* backpack = new LoadedModel("src/model/assets/backpack/backpack.obj", new Texture("src/model/assets/backpack/diffuse.jpg", false));
-        Model* bird = new LoadedModel("src/model/assets/bird/bird_normalized.obj", new Texture("src/model/assets/bird/diffuse.jpg", false));
-        Model* knight = new LoadedModel("src/model/assets/knight/knight2.obj", new Texture("src/model/assets/knight/armor.jpg", false));
-        Model* penguin = new LoadedModel("src/model/assets/penguin/penguin.obj", new Texture("src/model/assets/penguin/PenguinDiffuseColor.png", true));
-
-        //backpack->setPosition(glm::vec3(6, 0, 0));
-        bird->setPosition(glm::vec3(3.0f, 0.0f, 0.0f));
-        knight->setPosition(glm::vec3(-8.0f, 0.0f ,0.0f));
-        penguin->setPosition(glm::vec3(-1.0f, 0.0f, 0.0f));
-
-        //modelsForModelShader->push_back(backpack);
-        modelsForModelShader->push_back(bird);
-        modelsForModelShader->push_back(knight);
-        modelsForModelShader->push_back(penguin);
-    }
-
-    void createBoxes() {
-        modelsForModelShader->push_back(createBox(glm::vec3( 2.0f,  5.0f, -15.0f)));
-        modelsForModelShader->push_back(createBox(glm::vec3(-1.5f, -2.2f, -2.5f)));
-        modelsForModelShader->push_back(createBox(glm::vec3(-3.8f, -2.0f, -12.3f)));
-        modelsForModelShader->push_back(createBox(glm::vec3( 2.4f, -0.4f, -3.5f)));
-        modelsForModelShader->push_back(createBox(glm::vec3(-1.7f,  3.0f, -7.5f)));
-        modelsForModelShader->push_back(createBox(glm::vec3( 1.3f, -2.0f, -2.5f)));
-        modelsForModelShader->push_back(createBox(glm::vec3( 1.5f,  2.0f, -2.5f)));
-        modelsForModelShader->push_back(createBox(glm::vec3( 1.5f,  0.2f, -1.5f)));
     }
 };

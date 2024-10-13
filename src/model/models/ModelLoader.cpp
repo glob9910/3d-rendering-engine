@@ -6,7 +6,6 @@
 
 #include "Mesh.cpp"
 
-
 class ModelLoader {
 public:
 
@@ -90,17 +89,14 @@ private:
                 if (texcoordIndex >= 0) {
                     vertex.texCoords = texcoords[texcoordIndex];
                 } else {
-                    vertex.texCoords = glm::vec2(0.0f, 0.0f); // domyślna współrzędna tekstury, jeśli brak
+                    vertex.texCoords = glm::vec2(0.0f, 0.0f); // default texcoords, if not present
                 }
 
-                // Dodajemy wierzchołek do siatki
                 meshVertices.push_back(vertex);
-                // Indeksy są numerowane od 0, więc możemy po prostu dodawać kolejno
                 indices.push_back(meshVertices.size() - 1);
             }
         }
 
-        // Tworzymy siatkę z wygenerowanych wierzchołków i indeksów, na razie brak tekstur
         return Mesh(meshVertices, indices);
     }
 };

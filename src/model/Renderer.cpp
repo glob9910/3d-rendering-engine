@@ -14,6 +14,7 @@
 #include "Camera.cpp"
 #include "models/Material.cpp"
 #include "models/Skybox.cpp"
+#include "levels/AbstractLevel.cpp"
 
 class Renderer {
 private:
@@ -29,12 +30,12 @@ public:
         this->screenHeight = screenHeight;
     }
 
-    void render(
-        std::vector<std::pair<Shader*, std::vector<Model*>*>*>* toRender, 
-        std::vector<Light*>* lights, 
-        Camera* camera, 
-        Skybox* skybox
-    ) {
+    void render(AbstractLevel* level) {
+        std::vector<std::pair<Shader*, std::vector<Model*>*>*>* toRender = level->getModels();
+        std::vector<Light*>* lights = level->getLights();
+        Camera* camera = level->getCamera();
+        Skybox* skybox = level->getSkybox();
+
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -60,7 +61,7 @@ private:
         }
 
         glDepthMask(GL_FALSE);
-        glDepthFunc(GL_LEQUAL);  // Pozwolenie na renderowanie Skyboxa w tle
+        glDepthFunc(GL_LEQUAL); // let skybox render in background
         skybox->shader->use();
         skybox->shader->setInt("skybox", 0);
         glm::mat4 v = glm::mat4(glm::mat3(this->view));  
@@ -72,7 +73,7 @@ private:
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
 
-        glDepthFunc(GL_LESS);  // Przywrócenie domyślnej funkcji głębokości
+        glDepthFunc(GL_LESS);   // default depth
         glDepthMask(GL_TRUE);
     }
 
@@ -144,5 +145,4 @@ private:
             glBindTexture(GL_TEXTURE_2D, 0);
         }
     }
-
 };

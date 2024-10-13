@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 
 #include "../Window.cpp"
@@ -8,10 +10,10 @@
 #include "../models/Box.cpp"
 #include "../Shader.cpp"
 #include "../models/LoadedModel.cpp"
-#include "../Renderer.cpp"
 #include "../Camera.cpp"
+#include "../models/Skybox.cpp"
 
-class AbstractLevel{
+class AbstractLevel {
 protected:
 
     std::vector<Light*>* lights;
@@ -22,7 +24,6 @@ protected:
 
     GLFWwindow *window;
 
-    Renderer* renderer;
     Camera* camera;
 
     float lastX;
@@ -39,7 +40,6 @@ public:
 
         glfwSetCursorPosCallback(window, static_mouse_callback);
         glfwSetCursorPos(window, lastX, lastY);
-        glfwSetWindowUserPointer(window, this);
 
         camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
@@ -47,8 +47,6 @@ public:
         toRender = new std::vector<std::pair<Shader*, std::vector<Model*>*>*>;
         collisableModels = new std::vector<Model*>;
     }
-
-    void render() {}
 
     void processInput() {
         const float cameraSpeed = 0.05f;
@@ -74,9 +72,9 @@ public:
         if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
             camera->processKeyboard(DOWN);
         if(glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-            camera->processMouseScroll(true);
+            camera->processZoom(true);
         if(glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
-            camera->processMouseScroll(false);
+            camera->processZoom(false);
 
         if(detectCollisions) {
             for(Model* model : *collisableModels) {
@@ -89,6 +87,8 @@ public:
         }
     }
 
+    virtual void update() {}
+
     std::vector<Light*>* getLights() {
         return lights;
     }
@@ -99,6 +99,10 @@ public:
     
     Skybox* getSkybox() {
         return skybox;
+    }
+
+    Camera* getCamera() {
+        return camera;
     }
 
 protected:
@@ -124,21 +128,14 @@ protected:
     }
 
     bool detectCameraCollision(Model* model) {
-        // Obliczamy rzeczywisty rozmiar modelu w przestrzeni świata, biorąc pod uwagę jego pozycję i skalę
         glm::vec3 modelMin = model->position - model->scale;
         glm::vec3 modelMax = model->position + model->scale;
 
-        // Pozycja kamery
         glm::vec3 cameraPosition = camera->position;
 
-        // Sprawdzamy, czy pozycja kamery znajduje się w zakresie modelu na każdej osi
         bool collisionX = cameraPosition.x >= modelMin.x && cameraPosition.x <= modelMax.x;
         bool collisionY = cameraPosition.y >= modelMin.y && cameraPosition.y <= modelMax.y;
         bool collisionZ = cameraPosition.z >= modelMin.z && cameraPosition.z <= modelMax.z;
-
-        // Jeśli pozycja kamery znajduje się w modelu na wszystkich osiach, to mamy kolizję
-        if (collisionX && collisionY && collisionZ)
-            printf("collision\n");
 
         return collisionX && collisionY && collisionZ;
     }
