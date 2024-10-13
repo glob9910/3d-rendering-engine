@@ -3,7 +3,7 @@
 class Level : public AbstractLevel {
 private:
 
-    Skybox* skybox;
+    Skybox* skybox = nullptr;
 
 public:
     Level(int SCR_WIDTH, int SCR_HEIGHT, GLFWwindow *window) : AbstractLevel(SCR_WIDTH, SCR_HEIGHT, window) {
@@ -20,13 +20,12 @@ public:
         createPointLights();
         createModels();
         createBoxes();
+        skybox = new Skybox("src/model/assets/skybox", skyboxShader);
 
         std::pair<Shader*, std::vector<Model*>*>* lightShaderModels = new std::pair<Shader*, std::vector<Model*>*>(lightShader, modelsForLightShader);
         std::pair<Shader*, std::vector<Model*>*>* modelShaderModels = new std::pair<Shader*, std::vector<Model*>*>(modelShader, modelsForModelShader);
 
         renderer = new Renderer(SCR_WIDTH, SCR_HEIGHT);
-        skybox = new Skybox();
-        renderer->setSkyBox(skyboxShader, skybox);
         toRender = new std::vector<std::pair<Shader*, std::vector<Model*>*>*>();
         toRender->push_back(lightShaderModels);
         toRender->push_back(modelShaderModels);
@@ -39,13 +38,12 @@ public:
             camera->isCollision = detectCameraCollision(model);
         }
 
-
         // pinguin rotation
         modelsForModelShader->at(2)->rotationAngle = (float)glfwGetTime();
         modelsForModelShader->at(2)->rotation = glm::vec3(0.0f, 1.0f, 0.0f);
 
         processAction(window);
-        renderer->render(toRender, lights, camera);
+        renderer->render(toRender, lights, camera, skybox);
     }
 
 private:

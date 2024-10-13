@@ -19,8 +19,9 @@ class Renderer {
 private:
     float screenHeight;
     float screenWidth;
-    Skybox* skybox;
-    Shader* skyboxShader;
+
+    glm::mat4 projection;
+    glm::mat4 view;
 
 public:
     Renderer(float screenWidth, float screenHeight) {
@@ -28,111 +29,120 @@ public:
         this->screenHeight = screenHeight;
     }
 
-    void render(std::vector<std::pair<Shader*, std::vector<Model*>*>*>* toRender, std::vector<Light*>* lights, Camera* camera) {
+    void render(
+        std::vector<std::pair<Shader*, std::vector<Model*>*>*>* toRender, 
+        std::vector<Light*>* lights, 
+        Camera* camera, 
+        Skybox* skybox
+    ) {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        // glClear(GL_COLOR_BUFFER_BIT);
-        // glClear(GL_DEPTH_BUFFER_BIT);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // projection/view matrices
-        glm::mat4 projection = glm::perspective(glm::radians(camera->zoom), this->screenWidth / this->screenHeight, 0.1f, 100.0f);
-        glm::mat4 view = camera->GetViewMatrix();
+        projection = glm::perspective(glm::radians(camera->zoom), this->screenWidth / this->screenHeight, 0.1f, 100.0f);
+        view = camera->GetViewMatrix();
 
-if (skybox != nullptr) {
-            glDepthMask(GL_FALSE);
-            glDepthFunc(GL_LEQUAL);  // Pozwolenie na renderowanie Skyboxa w tle
-            skyboxShader->use();
-
-            glm::mat4 skyboxView = glm::mat4(glm::mat3(view));
-            skyboxShader->setMat4("view", skyboxView);
-            skyboxShader->setMat4("projection", projection);
-        
-
-            glBindVertexArray(skybox->VAO);
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->cubemapTexture);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-
-            glBindVertexArray(0);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-
-            glDepthFunc(GL_LESS);  // Przywrócenie domyślnej funkcji głębokości
-            glDepthMask(GL_TRUE);
-        }
-        
-
+        renderSkybox(skybox);
         for(auto obj : *toRender) {
             Shader* shader = obj->first;
             shader->use();
 
-            int countPointLights = 0;
-            for(Light* l : *lights) {
-                glm::vec3 ambient = l->getAmbient();
-                glm::vec3 diffuse = l->getDiffuse();
-                glm::vec3 specular = l->getSpecular();
-                switch(l->getType()) {
-                    case LIGHT::DIR:
-                        glm::vec3 direction;
-                        direction = ((DirLight*) l)->getDirection();
-                        shader->setVec3("dirLight.direction", direction);
-                        shader->setVec3("dirLight.ambient", ambient);
-                        shader->setVec3("dirLight.diffuse", diffuse);
-                        shader->setVec3("dirLight.specular", specular);
-                        break;
-                    case LIGHT::POINT:
-                        glm::vec3 position;
-                        position = ((PointLight*) l)->getPosition();
-                        float constant, linear, quadratic;
-                        constant = ((PointLight*) l)->getConstant();
-                        linear = ((PointLight*) l)->getLinear();
-                        quadratic =((PointLight*) l)->getQuadratic();
-                        shader->setVec3("pointLight[" + std::to_string(countPointLights) + "].ambient", ambient);
-                        shader->setVec3("pointLight[" + std::to_string(countPointLights) + "].diffuse", diffuse);
-                        shader->setVec3("pointLight[" + std::to_string(countPointLights) + "].specular", specular);
-                        shader->setVec3("pointLight[" + std::to_string(countPointLights) + "].position", position);
-                        shader->setFloat("pointLight[" + std::to_string(countPointLights) + "].constant", constant);
-                        shader->setFloat("pointLight[" + std::to_string(countPointLights) + "].linear", linear);
-                        shader->setFloat("pointLight[" + std::to_string(countPointLights) + "].quadratic", quadratic);
-                        countPointLights++;
-                    default:
-                        break;
-                }
-            }
-    
-            shader->setInt("numOfPointLights", countPointLights);
-
-            shader->setMat4("projection", projection);
-            shader->setMat4("view", view);
-            shader->setInt("material.diffuse", 0);
-            shader->setInt("material.specular", 1);
-            for(Model* model : *obj->second) {
-                glm::mat4 m = model->getModelMatrix();
-                shader->setMat4("model", m);
-                
-                Material* material = model->getMaterial();
-                shader->setFloat("material.shininess", material->getShininess());
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, material->getDiffuse()->ID);
-                if(material->hasSpecular()) {
-                    glActiveTexture(GL_TEXTURE1);
-                    glBindTexture(GL_TEXTURE_2D, material->getSpecular()->ID);
-                }
-
-                std::vector<Mesh> meshes = model->getMeshes();
-                for(unsigned int i = 0; i < meshes.size(); i++) {
-                    meshes[i].draw();
-                }
-
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, 0);
-                glActiveTexture(GL_TEXTURE1);
-                glBindTexture(GL_TEXTURE_2D, 0);
-            }
+            renderLights(lights, shader);
+            renderModels(*obj->second, shader);
         }
     }
 
-    void setSkyBox(Shader* skyboxShader, Skybox* skybox) {
-        this->skybox = skybox;
-        this->skyboxShader = skyboxShader;
+private:
+    void renderSkybox(Skybox* skybox) {
+        if(skybox == nullptr) {
+            printf(":()");
+            return;
+        }
+
+        glDepthMask(GL_FALSE);
+        glDepthFunc(GL_LEQUAL);  // Pozwolenie na renderowanie Skyboxa w tle
+        skybox->shader->use();
+        skybox->shader->setInt("skybox", 0);
+        glm::mat4 v = glm::mat4(glm::mat3(this->view));  
+        skybox->shader->setMat4("view", v);
+        skybox->shader->setMat4("projection", projection);
+        glBindVertexArray(skybox->VAO);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->cubemapTexture);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+
+        glDepthFunc(GL_LESS);  // Przywrócenie domyślnej funkcji głębokości
+        glDepthMask(GL_TRUE);
     }
+
+    void renderLights(std::vector<Light*>* lights, Shader* shader) {
+        int countPointLights = 0;
+        for(Light* l : *lights) {
+            glm::vec3 ambient = l->getAmbient();
+            glm::vec3 diffuse = l->getDiffuse();
+            glm::vec3 specular = l->getSpecular();
+            switch(l->getType()) {
+                case LIGHT::DIR:
+                    glm::vec3 direction;
+                    direction = ((DirLight*) l)->getDirection();
+                    shader->setVec3("dirLight.direction", direction);
+                    shader->setVec3("dirLight.ambient", ambient);
+                    shader->setVec3("dirLight.diffuse", diffuse);
+                    shader->setVec3("dirLight.specular", specular);
+                    break;
+                case LIGHT::POINT:
+                    glm::vec3 position;
+                    position = ((PointLight*) l)->getPosition();
+                    float constant, linear, quadratic;
+                    constant = ((PointLight*) l)->getConstant();
+                    linear = ((PointLight*) l)->getLinear();
+                    quadratic =((PointLight*) l)->getQuadratic();
+                    shader->setVec3("pointLight[" + std::to_string(countPointLights) + "].ambient", ambient);
+                    shader->setVec3("pointLight[" + std::to_string(countPointLights) + "].diffuse", diffuse);
+                    shader->setVec3("pointLight[" + std::to_string(countPointLights) + "].specular", specular);
+                    shader->setVec3("pointLight[" + std::to_string(countPointLights) + "].position", position);
+                    shader->setFloat("pointLight[" + std::to_string(countPointLights) + "].constant", constant);
+                    shader->setFloat("pointLight[" + std::to_string(countPointLights) + "].linear", linear);
+                    shader->setFloat("pointLight[" + std::to_string(countPointLights) + "].quadratic", quadratic);
+                    countPointLights++;
+                default:
+                    break;
+            }
+        }
+
+        shader->setInt("numOfPointLights", countPointLights);
+    }
+    
+
+    void renderModels(std::vector<Model*> models, Shader* shader) {
+        shader->setMat4("projection", projection);
+        shader->setMat4("view", view);
+        shader->setInt("material.diffuse", 0);
+        shader->setInt("material.specular", 1);
+        for(Model* model : models) {
+            glm::mat4 m = model->getModelMatrix();
+            shader->setMat4("model", m);
+            
+            Material* material = model->getMaterial();
+            shader->setFloat("material.shininess", material->getShininess());
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, material->getDiffuse()->ID);
+            if(material->hasSpecular()) {
+                glActiveTexture(GL_TEXTURE1);
+                glBindTexture(GL_TEXTURE_2D, material->getSpecular()->ID);
+            }
+
+            std::vector<Mesh> meshes = model->getMeshes();
+            for(unsigned int i = 0; i < meshes.size(); i++) {
+                meshes[i].draw();
+            }
+
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
+    }
+
 };

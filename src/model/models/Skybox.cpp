@@ -54,20 +54,22 @@ private:
         1.0f, -1.0f,  1.0f
     };
 
-    std::vector<std::string> faces {
-        "src/model/assets/skybox/right.jpg",
-        "src/model/assets/skybox/left.jpg",
-        "src/model/assets/skybox/top.jpg",
-        "src/model/assets/skybox/bottom.jpg",
-        "src/model/assets/skybox/front.jpg",
-        "src/model/assets/skybox/back.jpg"
-    };
+    std::vector<std::string> faces;
 
 public:
+    Shader* shader;
     unsigned int VAO;
     unsigned int cubemapTexture;
 
-    Skybox() {
+    Skybox(std::string filepath, Shader* shader) {
+        faces.push_back(filepath + "/right.jpg");
+        faces.push_back(filepath + "/left.jpg");
+        faces.push_back(filepath + "/top.jpg");
+        faces.push_back(filepath + "/bottom.jpg");
+        faces.push_back(filepath + "/front.jpg");
+        faces.push_back(filepath + "/back.jpg");
+        this->shader = shader;
+
         cubemapTexture = loadCubemap(faces);
         setupVAO();
     }
@@ -114,7 +116,6 @@ public:
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STATIC_DRAW);
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-
+        this->VAO = skyboxVAO;
     }
-
 };
