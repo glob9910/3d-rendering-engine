@@ -114,7 +114,6 @@ private:
 
         shader->setInt("numOfPointLights", countPointLights);
     }
-    
 
     void renderModels(std::vector<Model*> models, Shader* shader) {
         shader->setMat4("projection", projection);

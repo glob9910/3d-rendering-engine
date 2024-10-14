@@ -9,8 +9,6 @@
 
 #include "../Shader.cpp"
 
-
-
 class Texture {
 public:
     unsigned int ID;

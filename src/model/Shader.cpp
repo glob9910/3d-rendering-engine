@@ -10,17 +10,14 @@
 
 #include "../Exception.cpp"
 
-
 class Shader {
 
 public:
     // the program ID
     unsigned int ID;
 
-    // constructor reads and builds the shader
     Shader(const char* vertexPath, const char* fragmentPath) {
         
-        // 1. retrieve the vertex/fragment source code from filePath
         std::string vertexCode;
         std::string fragmentCode;
         std::ifstream vShaderFile;
@@ -43,7 +40,6 @@ public:
             // convert stream into string
             vertexCode = vShaderStream.str();
             fragmentCode = fShaderStream.str();
-
         }
         catch(std::ifstream::failure e) {
             std::cout << "ERROR::SHADER::FILE_NOT_READ_SUCCESSFULLY" << std::endl;

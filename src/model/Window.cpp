@@ -39,16 +39,16 @@ public:
         Renderer* renderer = new Renderer(SCR_WIDTH, SCR_HEIGHT);
         std::vector<AbstractLevel*>* levels = new std::vector<AbstractLevel*>;
         levels->push_back(new Level(SCR_WIDTH, SCR_HEIGHT, window));
-        levels->push_back(new Level2(SCR_WIDTH, SCR_HEIGHT, window));
+        // levels->push_back(new Level2(SCR_WIDTH, SCR_HEIGHT, window));
         AbstractLevel* level = levels->at(0);
 
         while(!glfwWindowShouldClose(window)) {
-            if(glfwGetKey(window, GLFW_KEY_RIGHT)) {
-                level = levels->at(1);
-            }
-            if(glfwGetKey(window, GLFW_KEY_LEFT)) {
-                level = levels->at(0);
-            }
+            // if(glfwGetKey(window, GLFW_KEY_RIGHT)) {
+            //     level = levels->at(1);
+            // }
+            // if(glfwGetKey(window, GLFW_KEY_LEFT)) {
+            //     level = levels->at(0);
+            // }
             glfwSetWindowUserPointer(window, level);
             level->processInput();
             level->update();

@@ -3,7 +3,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-
 enum Camera_Movement {
     FORWARD,
     BACKWARD,
@@ -20,7 +19,6 @@ const float SPEED       =  0.3f;
 const float SENSITIVITY =  0.3f;
 const float ZOOM        =  45.0f;
 const float ZOOM_SENSITIVITY = 1.0f;
-
 
 class Camera {
 public:
@@ -39,7 +37,6 @@ public:
     float mouseSensitivity;
     float zoom;
     bool isCollision;
-
 
     Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : front(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(SPEED), mouseSensitivity(SENSITIVITY), zoom(ZOOM) {
         this->position = position;
