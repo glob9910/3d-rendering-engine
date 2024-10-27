@@ -7,7 +7,7 @@
 ```
 w,a,s,d - moving
 space - up
-shit - down
+shift - down
 z - zoom
 c - collisions (on/off)
 mouse - camera rotation
